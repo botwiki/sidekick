@@ -1,0 +1,20 @@
+Hi, welcome to Botmakers!
+
+Come introduce yourself in the <#C0ARTV6S2> channel :simple_smile:
+
+Some useful channels are:
+
+- <#C0AU5ATGQ>: get help and feedback
+- <#C0E4VFBQ8>: post links to what you're working on
+- <#C0B0T2BL4>: share useful tools and resources
+- <#C0JJDUF44>: share your ideas and look for collaborators
+
+You can respond to this message with `For admins:` to have it forwarded to the group's admins. To see what else I can do, type `/sidekick`.
+
+Be sure to check out the _Bot! zine_ newsletter (botzine.org), and follow twitter.com/botwikidotorg.
+
+Always feel free to speak up, and you can also leave us anonymous feedback through one of our surveys at botwiki.org/about/surveys. And remember that we have a <#C0CET7D37>: botwiki.org/coc
+
+Please note that Botwiki and Botmakers are personal side projects and we appreciate any help: botwiki.org/about/support 
+
+Thank you :simple_smile:
