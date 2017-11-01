@@ -129,6 +129,7 @@ module.exports = {
   init: function(controller){
     var twitter = this;
     console.log('reloading twitter module...');
+/*
 
     twitter.update_welcome_message({
       'text': [
@@ -166,6 +167,7 @@ module.exports = {
     }, function(err){
       console.log({err})
     })
+*/
     
     try{
       stream.stop();      

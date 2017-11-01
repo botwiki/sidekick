@@ -8,7 +8,10 @@ module.exports = function(controller) {
       if (message.actions[0].name === 'actions') {
         if (message.actions[0].value === 'delete_account') {
           var user_id = message.user;
-          helpers.deactivate(bot, message_original, user_id);
+          helpers.deactivate(bot, message_original, user_id, function(){
+            var message_for_mods = `<@${user_id}> deleted their account.`;
+            helpers.notify_mods(bot, null, message_for_mods, function(err, data){});  
+          });
         }
       }
     }
