@@ -127,7 +127,45 @@ function post_to_feed(tweet){
 
 module.exports = {
   init: function(controller){
+    var twitter = this;
     console.log('reloading twitter module...');
+
+    twitter.update_welcome_message({
+      'text': [
+        'Hey there!',
+        'If you\'d like to submit your bot to Botwiki, check out http://botwiki.org/submit-your-bot .',
+        'And be sure to join other us at http://botmakers.org  and subscribe to http://botzine.org !',
+        'Anything else we can help you with? :-)'
+      ].join('\n\n'),
+      // 'quick_reply': {
+      //   'type': 'options',
+      //   'options': [
+      //     {
+      //       'label': 'Hello 👋',
+      //       'description': 'Saying hello.',
+      //       'metadata': 'twitter_qr_hello'
+      //     },
+      //     {
+      //       'label': 'Submit my bot',
+      //       'description': 'How do I submit my bot to Botwiki?',
+      //       'metadata': 'twitter_qr_submit_bot'
+      //     },
+      //     {
+      //       'label': 'Join Botmakers',
+      //       'description': 'How do I join Botmakers?',
+      //       'metadata': 'twitter_qr_join_botmakers'
+      //     },
+      //     {
+      //       'label': 'Support Botwiki/Botmakers',
+      //       'description': 'How can I support Botwiki and Botmakers?',
+      //       'metadata': 'twitter_qr_support'
+      //     }
+      //   ]
+      // }
+
+    }, function(err){
+      console.log({err})
+    })
     
     try{
       stream.stop();      
@@ -173,7 +211,7 @@ module.exports = {
             can_tweet = false;
             return false;
           }
-          else if (tweet_text_normalized.indexOf(keyword) > -1){
+          else if (tweet_text_normalized.indexOf(keyword.trim().toLowerCase()) > -1){
             console.log(`"${keyword}" is blocked...`);
             can_tweet = false;
             return false;
@@ -193,10 +231,6 @@ module.exports = {
           });
         }
         if (can_tweet){
-
-          
-          
-
           var new_links = [];
 
           for (var i = 0, j = tweet.entities.urls.length; i < j; i++){
@@ -364,5 +398,53 @@ module.exports = {
         });
       }
     });  
+  },
+  update_welcome_message: function(wm_object, cb){
+    var twitter = this;
+    T.get('direct_messages/welcome_messages/rules/list', {}, function(err, data, response) {
+      console.log(data.welcome_message_rules);
+      if (data.welcome_message_rules && data.welcome_message_rules.length > 0){
+        console.log('deleting old welcome message...');
+        var old_welcome_message_id = data.welcome_message_rules[0].id;
+        T.delete('direct_messages/welcome_messages/rules/destroy', {
+          'id': old_welcome_message_id
+        }, function(err, data, response) {
+          if (err && cb){
+            cb(err);
+          }
+          else{
+            twitter.set_welcome_message(wm_object, cb);
+          }
+        });
+      }
+      else{
+        console.log('no previous welcome message found, updating...');
+        twitter.set_welcome_message(wm_object, cb);      
+      }
+    });
+  },
+  set_welcome_message: function(wm_object, cb){
+    var twitter = this;
+    console.log('setting new welcome message...');
+    T.post('direct_messages/welcome_messages/new', {
+      'welcome_message': {message_data: wm_object}      
+    }, function(err, data, response) {
+      if (err && cb){
+        cb(err)
+      }
+      else{
+        var welcome_message_id = data.welcome_message.id;
+        T.post('direct_messages/welcome_messages/rules/new', {
+          'welcome_message_rule': {
+            'welcome_message_id': welcome_message_id
+          }
+        }, function(err, data, response) {
+          console.log({data});
+          if (cb){
+            cb(err);
+          }
+        });
+      }
+    });
   }  
 };

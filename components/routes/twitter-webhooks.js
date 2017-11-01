@@ -47,7 +47,7 @@ webserver.post('/twitter-webhooks', function (req, res) {
   /* Handle webhook requests. */
   console.log('received new webhook request');
   /* Uncomment the line below to see the full object that was sent to us. */
-  //console.log(util.inspect(req.body, false, null));
+  console.log(util.inspect(req.body, false, null));
   if (req.body.direct_message_events){
     var message = req.body.direct_message_events[0],
         users = req.body.users;
@@ -59,7 +59,8 @@ webserver.post('/twitter-webhooks', function (req, res) {
             sender_screen_name = users[sender_id].screen_name,
             sender_name = users[sender_id].name,
             message_text = message.message_create.message_data.text,
-            message_entities = message.message_create.message_data.entities;
+            message_entities = message.message_create.message_data.entities,
+            quick_reply_response = message.message_create.message_data.quick_reply_response;
         /*
             message_entities = { hashtags: [], symbols: [], user_mentions: [], urls: [] } 
         */
@@ -67,11 +68,17 @@ webserver.post('/twitter-webhooks', function (req, res) {
         if (sender_screen_name !== process.env.twitter_screen_name){
           /* Twitter sends data about every message being sent, so we need to check if the bot is the sender. */
           console.log(`new direct message from ${sender_name} (@${sender_screen_name}): > ${message_text}`);
+          
+/*
+TODO:
+if (quick_reply_response.metadata){
+  if (quick_reply_response.metadata === 'twitter_qr_submit_bot')
+}
 
-          console.log({message_text});
+*/          
+          
 
           twitter.is_whitelisted(sender_id, function(err){
-            console.log({message_text});
 
             if (message_text && message_text.charAt(0) === '!'){
               var message_text_arr = message_text.split(' ');
