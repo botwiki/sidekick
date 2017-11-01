@@ -56,7 +56,6 @@ module.exports = {
   },
   download_file: function(options, filename, cb){
     request(options).pipe(fs.createWriteStream(filename)).on('close', cb);
-   
     // request.head(options, function(err, res, body){
     //   var r = request(options).pipe(fs.createWriteStream(filename)).on('close', cb);
     // });
@@ -69,7 +68,7 @@ module.exports = {
       'dragplus.com',
       'adf.ly',
       'linkis.com'
-    ].indexOf(url) === -1;
+    ].indexOf(url) > -1;
   },
   is_admin: function(bot, message, cb) {
     var helpers = this;
