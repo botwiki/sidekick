@@ -264,7 +264,7 @@ module.exports = {
       attachments: JSON.stringify(attachments)
     });       
   },
-  deactivate: function(bot, message, user_id){
+  deactivate: function(bot, message, user_id, cb){
     var helpers = this;
     console.log(`Deleting user <@${user_id}>...`);
 
@@ -282,7 +282,10 @@ module.exports = {
       }
       else{
         console.log(`User <@${user_id}> was removed.`);
-        helpers.notify_mods(bot, null, `User <@${user_id}> was removed.`, function(err, data){});
+        // helpers.notify_mods(bot, null, `User <@${user_id}> was removed.`, function(err, data){});
+        if (cb){
+          cb();
+        }
       }
     });        
   }
