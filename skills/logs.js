@@ -17,7 +17,7 @@ module.exports = function(controller) {
     if (message_channel.charAt(0) !== 'G'){
       console.log(message);
       bot.api.conversations.members({
-        channel: 'G6SL3ERMY'
+        channel: channel_ids.logs
       }, function(err, data){
         console.log('################', data);
         if (data.members.indexOf(message_user) === -1){
