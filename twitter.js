@@ -58,7 +58,7 @@ function post_to_feed(tweet){
   var re = /((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*/gi;
   var tweet_text_parsed = tweet.text, result, ind = 0;
   while((result = re.exec(tweet.text)) !== null) {
-    if (tweet.entities.urls[ind].expanded_url){      
+    if (tweet.entities.urls.length > 0 && tweet.entities.urls[ind].expanded_url){      
       console.log(ind, result[0], tweet.entities.urls[ind].expanded_url);
       tweet_text_parsed = tweet_text_parsed.replace(result[0], tweet.entities.urls[ind].expanded_url)
       ind++;
@@ -184,7 +184,7 @@ module.exports = {
         ignored: all_team_data[0].ignored
       }
 
-      stream = T.stream('statuses/filter', { track: keywords.tracked});
+      stream = T.stream('statuses/filter', { track: keywords.tracked, tweet_mode: 'extended'});
       user_stream = T.stream('user');
 
       // console.log({keywords});
@@ -195,16 +195,22 @@ module.exports = {
           return false;
         }        
         var tweet_url = `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
+            // tweet_text = (tweet.extended_tweet ? tweet.extended_tweet.full_text : tweet.text),
             tweet_text_normalized = tweet.text.trim().toLowerCase();
         
+        if (tweet.extended_tweet){
+          console.log({'tweet.extended_tweet': tweet.extended_tweet});
+        }
+
         console.log({
           tweet_url: tweet_url,          
           tweet_user_screen_name: tweet.user.screen_name,
-          tweet_text: tweet.text
+          tweet_text: tweet.text,
+          tweet_fulltext: (tweet.extended_tweet ? tweet.extended_tweet.full_text : null)          
         });
         
         var can_tweet = true;
-        
+
         console.log('checking tweet against ignored keywords...');
         
         keywords.ignored.forEach(function(keyword){
@@ -256,7 +262,6 @@ module.exports = {
                 update_posted_links();
                 console.log('forwarding to the feed channel...');
                 post_to_feed(tweet);
-                
               }
               else if (posted_links.indexOf(final_url) === -1 && !helpers.check_domain_blacklist(final_url)){
                 console.log('found new URL:', final_url);
@@ -265,7 +270,6 @@ module.exports = {
                 update_posted_links();
                 console.log('forwarding to the feed channel...');
                 post_to_feed(tweet);
-
               }
               else{
                 console.log('URL already posted, or blacklisted');
