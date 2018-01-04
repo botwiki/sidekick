@@ -15,10 +15,24 @@ module.exports = function(controller) {
         message_channel = message.item.channel;
     
     if (message_channel.charAt(0) !== 'G'){
-      helpers.log_event(bot, `<@${message_user}> reacted with :${message_reaction}: in <#${message_channel}>.`);      
-      // log_event(bot, `<@${message_user}> reacted with :${message_reaction}: in <#${message_channel}>.`)
-    }    
-    
+      console.log(message);
+      bot.api.conversations.members({
+        channel: 'G6SL3ERMY'
+      }, function(err, data){
+        console.log('################', data);
+        if (data.members.indexOf(message_user) === -1){
+          helpers.log_event(bot, `<@${message_user}> reacted with :${message_reaction}: in <#${message_channel}>.`);  
+        }
+        else{
+          bot.api.users.info({
+            user: message_user
+          }, function(err, data){
+            console.log(data.user.name);
+            helpers.log_event(bot, `*${data.user.name}* reacted with :${message_reaction}: in <#${message_channel}>.`);  
+          });          
+        }
+      });
+    }        
   });
 }
 

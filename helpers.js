@@ -186,7 +186,7 @@ module.exports = {
       });
 
       attachment.fields.push({
-        title: 'Disabled',
+        title: 'Deactivated',
         value: `:no_entry: ${helpers.number_with_commas(disabled_users.length)}`,
         short: true
       });
