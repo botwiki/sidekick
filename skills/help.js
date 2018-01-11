@@ -1,7 +1,7 @@
 /*********************************************************************************
-Send a message to all moderators.
+Get to know your Sidekick.
 
-/sidekick mods Hello, this is for the group moderators.
+/sidekick help
 
 *********************************************************************************/
 
