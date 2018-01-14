@@ -198,29 +198,29 @@ module.exports = {
             // tweet_text = (tweet.extended_tweet ? tweet.extended_tweet.full_text : tweet.text),
             tweet_text_normalized = tweet.text.trim().toLowerCase();
         
-        if (tweet.extended_tweet){
-          console.log({'tweet.extended_tweet': tweet.extended_tweet});
-        }
+        // if (tweet.extended_tweet){
+        //   console.log({'tweet.extended_tweet': tweet.extended_tweet});
+        // }
 
-        console.log({
-          tweet_url: tweet_url,          
-          tweet_user_screen_name: tweet.user.screen_name,
-          tweet_text: tweet.text,
-          tweet_fulltext: (tweet.extended_tweet ? tweet.extended_tweet.full_text : null)          
-        });
+        // console.log({
+        //   tweet_url: tweet_url,          
+        //   tweet_user_screen_name: tweet.user.screen_name,
+        //   tweet_text: tweet.text,
+        //   tweet_fulltext: (tweet.extended_tweet ? tweet.extended_tweet.full_text : null)          
+        // });
         
         var can_tweet = true;
 
-        console.log('checking tweet against ignored keywords...');
+        // console.log('checking tweet against ignored keywords...');
         
         keywords.ignored.forEach(function(keyword){
           if (keyword.charAt(0) === '@' && `@${tweet.user.screen_name}` === keyword){
-            console.log(`@${tweet.user.screen_name} is blocked...`);
+            // console.log(`@${tweet.user.screen_name} is blocked...`);
             can_tweet = false;
             return false;
           }
           else if (tweet_text_normalized.indexOf(keyword.trim().toLowerCase()) > -1){
-            console.log(`"${keyword}" is blocked...`);
+            // console.log(`"${keyword}" is blocked...`);
             can_tweet = false;
             return false;
           } 
@@ -228,7 +228,7 @@ module.exports = {
 
         if (can_tweet){
           can_tweet = false;
-          console.log('checking tweet against tracked keywords...');
+          // console.log('checking tweet against tracked keywords...');
 
           keywords.tracked.forEach(function(keyword){
             // console.log(`checking tweet against "${keyword}"...`);
@@ -246,7 +246,7 @@ module.exports = {
           }   
 
           if (new_links.length > 0){
-            console.log('detected URL(s) in tweet:\n', new_links);
+            // console.log('detected URL(s) in tweet:\n', new_links);
             var new_link = new_links.shift(); /*TODO: For now, only checking the first posted URL, most common scenario. */
 
             var r = request(new_link, function (e, response) {
@@ -260,24 +260,24 @@ module.exports = {
               if (posted_links.length === 0){
                 posted_links.push(final_url);
                 update_posted_links();
-                console.log('forwarding to the feed channel...');
+                // console.log('forwarding to the feed channel...');
                 post_to_feed(tweet);
               }
               else if (posted_links.indexOf(final_url) === -1 && !helpers.check_domain_blacklist(final_url)){
-                console.log('found new URL:', final_url);
+                // console.log('found new URL:', final_url);
 
                 posted_links.push(final_url);
                 update_posted_links();
-                console.log('forwarding to the feed channel...');
+                // console.log('forwarding to the feed channel...');
                 post_to_feed(tweet);
               }
               else{
-                console.log('URL already posted, or blacklisted');
+                // console.log('URL already posted, or blacklisted');
               }          
             })
           }
           else{
-            console.log('forwarding to the feed channel...');
+            // console.log('forwarding to the feed channel...');
             post_to_feed(tweet);            
           }
         }
