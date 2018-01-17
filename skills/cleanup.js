@@ -67,7 +67,15 @@ function start_cleanup(bot, message){
   });    
 }
 
-module.exports = function(controller) { 
+module.exports = function(controller) {
+  controller.on('ambient', function(bot, message){
+    helpers.update_last_active_time(controller, bot, message);
+  });
+
+  controller.on('team_join', function(bot, message) {
+    helpers.update_last_active_time(controller, bot, message);    
+  });  
+  
   controller.on('slash_command', function(bot, message) {
     bot.replyAcknowledge();
 
@@ -112,8 +120,6 @@ module.exports = function(controller) {
                     if (!member.is_bot){
 
                       setTimeout(function(){
-                         // console.log(member);
-
                          bot.api.im.open({
                             user: member.id
                           }, function(message, data){
@@ -210,52 +216,67 @@ module.exports = function(controller) {
 
           bot.api.users.list({}, function(err, data){
             if (!err && data.members){
-              var active_users = [], inactive_users = [], deleted_users = [];
-              data.members.forEach(function(member){
-                if (member.deleted){
-                  deleted_users.push(member);
-                }
-                else{
-                  controller.storage.users.get(member.id, function(err, data) {
-                    // if (data){
-                    //   console.log({data})
-                    // }
+              var active_users = [], inactive_users = [], deleted_users = [];              
 
-                    if (data && data.last_active && moment().diff( data.last_active, 'days') < 32){
-                      attachment.fields.push({
-                        'value': `:green_heart: <@${member.name}>`,
-                        'thumb_url': member.profile.image_192,
-                        'short': true
-                      });
-                      active_users.push(member);
-                      // console.log({active_users});
-                    }
-                    else {
-                      inactive_users.push(member);
-                    }
-                  });
-                }
-              });
+              var actions = data.members.map(function(member){
+                var action = new Promise(function(resolve, reject) {
+                  if (member.deleted){
+                    resolve(null);
+                  }
+                  else{
+                    controller.storage.users.get(member.id, function(err, data) {
+                      if (data && data.last_active){
+                        member.__last_active = data.last_active;
+                      }
+                      resolve(member);
+                    });
+                  }
+                });
 
-              attachment.title = `There are ${active_users.length} active members`;
-              
-              attachment.fields.push({
-                value: `Also, there are ${inactive_users.length + deleted_users.length} inactive and deleted accounts.`
+                return action;
               });
               
-              attachments.push(attachment);
+    
 
-              bot.api.chat.postEphemeral({
-                channel: message_original.channel,
-                user: message_original.user,
-                text: 'Here you go!',
-                attachments: JSON.stringify(attachments)    
-              });
+              var results = Promise.all(actions);
+
+              results.then(function (values) {
+                values.forEach(function(member){                
+
+                  if (member && member.__last_active && moment().diff( member.__last_active, 'days') < 32){
+                    attachment.fields.push({
+                      'value': `<@${member.name}> (${moment(member.__last_active).fromNow()})`,
+                      'thumb_url': member.profile.image_192,
+                      'short': true
+                    });
+                    active_users.push(member);
+                  }
+                  else {
+                    inactive_users.push(member);
+                  }
+                                
+                });
+
+                attachment.title = `There are ${active_users.length} active Botmakers members:`;
+
+                attachment.fields.push({
+                  value: `Also, there are ${inactive_users.length + deleted_users.length} inactive and deleted accounts.`
+                });
+
+                attachments.push(attachment);
+
+                bot.api.chat.postEphemeral({
+                  channel: message.channel,
+                  user: message.user,
+                  text: 'Here you go!',
+                  attachments: attachments    
+                });
+              });          
             }
           });
         }
         else if (message.actions[0].value === 'remove_inactive_members') {
-          console.log('retrieving...');
+          console.log('cleaning up...');
           /* TODO: deactivate inactive users */
         }
         else if (message.actions[0].value === 'show_cleanup_menu') {

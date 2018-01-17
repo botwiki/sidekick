@@ -10,11 +10,15 @@ Log group activity in the #logs channel.
 module.exports = function(controller) {
   controller.on('reaction_added', function(bot, message){
     
+    helpers.update_last_active_time(controller, bot, message, function(err){
+    // NOOP
+    });
+    
     var message_user = message.user,
         message_reaction = message.reaction,
         message_channel = message.item.channel;
     
-    if (message_channel.charAt(0) !== 'G'){
+    if (message_channel && message_channel.charAt(0) !== 'G'){
       console.log(message);
       bot.api.conversations.members({
         channel: channel_ids.logs

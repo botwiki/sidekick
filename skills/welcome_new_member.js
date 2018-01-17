@@ -7,7 +7,7 @@ var wordfilter = require('wordfilter'),
     helpers = require(__dirname + '/../helpers.js'),
     channel_ids = require(__dirname + '/../channel_ids.js');
 
-function sendWelcomeMessage(controller, bot, message){
+function send_welcome_message(controller, bot, message){
   console.log({
     'message.user_id:': message.user_id,
     'message.user.id:': message.user.id 
@@ -48,13 +48,13 @@ module.exports = function(controller) {
       bot.replyAcknowledge();
 
       if (args[0] === 'welcome'){
-        sendWelcomeMessage(controller, bot, message);
+        send_welcome_message(controller, bot, message);
       }
     }
   });  
   
   controller.on('team_join', function(bot, message) {
-    sendWelcomeMessage(controller, bot, message);    
+    send_welcome_message(controller, bot, message);
   });
 }
 

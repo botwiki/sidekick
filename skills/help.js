@@ -21,53 +21,60 @@ function explain_sidekick(bot, message){
       'color': '#3AA3E3',
       'attachment_type': 'default',
       'actions': [
-        {
-          'name': 'actions',
-          'text': 'Who\'s online?',
-          'type': 'button',
-          'value': 'learn_more'
-        },
-        {
-          'name': 'actions',
-          'text': 'Our bots',
-          'type': 'button',
-          'value': 'learn_more_bots'
-        },
-        {
-          'name': 'actions',
-          'text': 'Contact moderators',
-          'type': 'button',
-          'value': 'contact_moderators'
-        },
-        {
-          'name': 'actions',
-          'text': 'Delete my account',
-          'style': 'danger',
-          'type': 'button',
-          'value': 'delete_account',
-          'confirm': {
-            'title': 'Are you sure?',
-            'text': 'You can always contact stefan@botwiki.org to re-activate your account.',
-            'ok_text': 'Yes',
-            'dismiss_text': 'No'
-          }
-        }
+       
       ]
     }
   ];
 
   helpers.is_admin(bot, message, function(err){
+    attachments[0].actions.push({
+      'name': 'actions',
+      'text': 'Who\'s online?',
+      'type': 'button',
+      'value': 'learn_more'
+    });
+
+    attachments[0].actions.push({
+      'name': 'actions',
+      'text': 'Our bots',
+      'type': 'button',
+      'value': 'learn_more_bots'
+    });
+
+    attachments[0].actions.push({
+      'name': 'actions',
+      'text': 'Contact moderators',
+      'type': 'button',
+      'value': 'contact_moderators'
+    });
+        
     if (!err){
       attachments[0].actions.push(
         {
           'name': 'actions',
-          'text': 'Cleanup',
+          'text': 'Cleanup*',
           'type': 'button',
           'value': 'show_cleanup_menu'
         }
       );
     }
 
+    if (err){
+      attachments[0].actions.push({
+        'name': 'actions',
+        'text': 'Delete my account',
+        'style': 'danger',
+        'type': 'button',
+        'value': 'delete_account',
+        'confirm': {
+          'title': 'Are you sure?',
+          'text': 'You can always contact stefan@botwiki.org to re-activate your account.',
+          'ok_text': 'Yes',
+          'dismiss_text': 'No'
+        }
+      });
+    }    
+    
     bot.api.chat.postEphemeral({
       channel:message.channel,
       user: message.user,
