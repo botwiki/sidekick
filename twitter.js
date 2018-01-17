@@ -53,12 +53,12 @@ function post_to_feed(tweet){
   //tweet.text
   // console.log(`forwarding to #the-feed...\n`, tweet_url);
   // console.log(`forwarding to #the-feed...\n`, {tweet});
-  console.log(`forwarding to #the-feed...\n`, tweet.text, tweet.entities.urls);
+  // console.log(`forwarding to #the-feed...\n`, tweet.text, tweet.entities.urls);
   
   var re = /((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*/gi;
   var tweet_text_parsed = tweet.text, result, ind = 0;
   while((result = re.exec(tweet.text)) !== null) {
-    if (tweet.entities.urls.length > 0 && tweet.entities.urls[ind].expanded_url){      
+    if (tweet.entities.urls.length > 0 && tweet.entities.urls[ind] && tweet.entities.urls[ind].expanded_url){      
       console.log(ind, result[0], tweet.entities.urls[ind].expanded_url);
       tweet_text_parsed = tweet_text_parsed.replace(result[0], tweet.entities.urls[ind].expanded_url)
       ind++;

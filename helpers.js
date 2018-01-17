@@ -4,6 +4,7 @@ var fs = require('fs'),
     qs = require('qs'),
     path = require('path'),
     request = require('request'),
+    moment = require('moment'),    
     channel_ids = require(__dirname + '/channel_ids.js');
 
 module.exports = {
@@ -100,6 +101,32 @@ module.exports = {
         console.log(err);
       }
     });   
+  },
+  update_last_active_time: function(controller, bot, message, cb){
+    controller.storage.users.get(message.user, function(err, data) {
+      console.log(`loading user data for ${message.user}...`, {err}, {data});
+
+      if (err || !data){
+        var data = {
+          id: message.user
+        };
+      }
+
+      data.last_active = moment().format();
+      console.log(`loaded data for user ${message.user}...`, {data});
+
+      controller.storage.users.save(data, function(err, data) {
+        console.log(`saved user ${message.user}`, {err}, {data});
+
+        controller.storage.users.get(message.user, function(err, data) {
+          console.log(`loading user data for ${message.user} again...`, {err}, {data});
+        });      
+
+        if (cb){
+          cb();
+        }
+      });
+    });  
   },  
   notify_mods: function(bot, message_from, message_body, cb){
     
