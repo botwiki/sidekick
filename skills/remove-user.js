@@ -13,7 +13,7 @@ var fs = require('fs'),
     qs = require('qs'),
     helpers = require(__dirname + '/../helpers.js');
 
-function explainRemove(bot, message_original){
+function explain_remove_user(bot, message_original){
   var attachments = [], attachment = {
     title: 'Removing users from Slack group',
     color: '#333',
@@ -32,7 +32,6 @@ function explainRemove(bot, message_original){
   bot.api.chat.postEphemeral({
     channel: message_original.channel,
     user: message_original.user,
-    text: 'Here\'s how you can use the `/sidekick remove` command.',
     attachments: JSON.stringify(attachments)
   });
 }
@@ -70,7 +69,7 @@ module.exports = function(controller) {
 
             
             if (!remove_detect_user){
-              explainRemove(bot, message_original);
+              explain_remove_user(bot, message_original);
             }
             else{
               // var remove_user_id = patt_user_id.exec(remove_detect_user)[0].replace(/[<\|#>]/g, '').replace('@', '');          
@@ -84,17 +83,36 @@ module.exports = function(controller) {
                 });
               }
               else{
-                explainRemove(bot, message_original);            
+                explain_remove_user(bot, message_original);            
               }
             }
           }
           else{
-            explainRemove(bot, message_original);          
+            explain_remove_user(bot, message_original);          
           }
         }      
       });
     }
   });
+  
+  controller.middleware.receive.use(function(bot, message, next) {
+
+    var message_original = message;
+    if (message.type == 'interactive_message_callback') {
+      console.log('message_actions\n', message.actions);
+
+      if (message.actions[0].name === 'actions') {
+        if (message.actions[0].value === 'moderator_commands') {
+          helpers.is_admin(bot, message, function(err){
+            if (!err){
+              explain_remove_user(bot, message_original);
+            }
+          });
+        }
+      }
+    }
+    next();
+  });  
 }
 
 

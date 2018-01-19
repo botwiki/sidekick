@@ -1,4 +1,5 @@
 /*********************************************************************************
+
 Retrieve information about SLack group (online/active users, etc).
 
 /sidekick info

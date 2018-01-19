@@ -12,7 +12,7 @@ var fs = require('fs'),
     helpers = require(__dirname + '/../helpers.js'),
     wordfilter = require('wordfilter');
 
-function explainSendDm(bot, message_original){
+function explain_send_dm(bot, message_original){
   var attachments = [], attachment = {
     title: 'Sending DMs',
     color: '#333',
@@ -31,7 +31,6 @@ function explainSendDm(bot, message_original){
   bot.api.chat.postEphemeral({
     channel: message_original.channel,
     user: message_original.user,
-    text: 'Here\'s how you can use the `/sidekick dm` command.',
     attachments: JSON.stringify(attachments)
   });
 }
@@ -93,17 +92,34 @@ module.exports = function(controller) {
             }
             else{
               console.log(1);
-              explainSendDm(bot, message_original);            
+              explain_send_dm(bot, message_original);            
             }
           }
           else{
             console.log(2);
-            explainSendDm(bot, message_original);          
+            explain_send_dm(bot, message_original);          
           }
         }      
       });
     }
   });
+
+  controller.middleware.receive.use(function(bot, message, next) {
+
+    var message_original = message;
+    if (message.type == 'interactive_message_callback') {
+      console.log('message_actions\n', message.actions);
+
+      if (message.actions[0].name === 'actions') {
+        if (message.actions[0].value === 'moderator_commands') {
+          helpers.is_admin(bot, message, function(err){
+            if (!err){
+              explain_send_dm(bot, message_original);
+            }
+          });
+        }
+      }
+    }
+    next();
+  });
 }
-
-

@@ -1,11 +1,31 @@
 var fs = require('fs'),
     fsPath = require('fs-path'),
     helpers = require(__dirname + '/helpers.js'),
+    moment = require('moment'),  
     channel_ids = require(__dirname + '/channel_ids.js');
 
 
 module.exports = function(controller){
     return [
+    {
+      description: 'update last active statuses based on login information',
+      interval: '*/10 * * * *',
+      job: function(){
+        
+        controller.storage.teams.all(function(err, all_team_data) {
+          var bot = controller.spawn({token: all_team_data[0].token});
+          bot.api.team.accessLogs({ token: process.env.superToken }, function(err, data){
+            // console.log({data});
+            data.logins.forEach(function(member){
+              if (member.date_last){
+                var active_time =   moment.unix(member.date_last).format();  
+                helpers.update_last_active_time(controller, bot, member.user_id, active_time);
+              }
+            });            
+          });
+        });        
+      }
+    },
     {
       description: 'post group info into #logs once every hour',
       interval: '0 * * * *',

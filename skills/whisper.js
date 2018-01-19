@@ -12,7 +12,7 @@ var fs = require('fs'),
     helpers = require(__dirname + '/../helpers.js'),
     wordfilter = require('wordfilter');
 
-function explainWhisper(bot, message_original){
+function explain_whisper(bot, message_original){
   var attachments = [], attachment = {
     title: 'Sending whispers',
     color: '#333',
@@ -31,7 +31,6 @@ function explainWhisper(bot, message_original){
   bot.api.chat.postEphemeral({
     channel: message_original.channel,
     user: message_original.user,
-    text: 'Here\'s how you can use the `/sidekick whisper` command.',
     attachments: JSON.stringify(attachments)
   });
 }
@@ -73,7 +72,7 @@ module.exports = function(controller) {
             }
             
             if (!whisper_detect_user){
-              explainWhisper(bot, message_original);
+              explain_whisper(bot, message_original);
             }
             else{
               // var whisper_user = patt_user_id.exec(whisper_detect_user)[0].replace(/[<\|#>]/g, '').replace('@', '');          
@@ -110,17 +109,36 @@ module.exports = function(controller) {
                 }                
               }
               else{
-                explainWhisper(bot, message_original);            
+                explain_whisper(bot, message_original);            
               }              
             }
           }
           else{
-            explainWhisper(bot, message_original);          
+            explain_whisper(bot, message_original);          
           }
         }      
       });
     }
   });
+  
+  controller.middleware.receive.use(function(bot, message, next) {
+
+    var message_original = message;
+    if (message.type == 'interactive_message_callback') {
+      console.log('message_actions\n', message.actions);
+
+      if (message.actions[0].name === 'actions') {
+        if (message.actions[0].value === 'moderator_commands') {
+          helpers.is_admin(bot, message, function(err){
+            if (!err){
+              explain_whisper(bot, message_original);
+            }
+          });
+        }
+      }
+    }
+    next();
+  });  
 }
 
 

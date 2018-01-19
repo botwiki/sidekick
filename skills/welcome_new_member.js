@@ -10,9 +10,10 @@ var wordfilter = require('wordfilter'),
 function send_welcome_message(controller, bot, message){
   console.log({
     'message.user_id:': message.user_id,
-    'message.user.id:': message.user.id 
+    'message.user.id:': message.user.id,
+    'message.user:': message.user 
   });
-  var user_id = message.user_id || message.user.id;
+  var user_id = message.user.id || message.user_id || message.user;
   
   // console.log('sending out welcome message...\n', {message});
   // TODO: The ephemeral welcome message doesn't get triggered on team_join, only works with the testing slash command.

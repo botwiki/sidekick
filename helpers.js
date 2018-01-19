@@ -102,32 +102,37 @@ module.exports = {
       }
     });   
   },
-  update_last_active_time: function(controller, bot, message, cb){
-    controller.storage.users.get(message.user, function(err, data) {
-      console.log(`loading user data for ${message.user}...`, {err}, {data});
+  update_last_active_time: function(controller, bot, user_id, active_time, cb){
+    controller.storage.users.get(user_id, function(err, data) {
+      console.log(`loading user data for ${user_id}...`, {err}, {data});
 
       if (err || !data){
         var data = {
-          id: message.user
+          id: user_id
         };
       }
 
-      data.last_active = moment().format();
-      console.log(`loaded data for user ${message.user}...`, {data});
+      if (active_time === 'now'){
+        data.last_active = moment().format();
+      }
+      else{
+        data.last_active = active_time;      
+      }
+      console.log(`loaded data for user ${user_id}...`, {data});
 
       controller.storage.users.save(data, function(err, data) {
-        console.log(`saved user ${message.user}`, {err}, {data});
+        console.log(`saved user ${user_id}`, {err}, {data});
 
-        controller.storage.users.get(message.user, function(err, data) {
-          console.log(`loading user data for ${message.user} again...`, {err}, {data});
-        });      
+//         controller.storage.users.get(user_id, function(err, data) {
+//           console.log(`loading user data for ${user_id} again...`, {err}, {data});
+//         });      
 
         if (cb){
           cb();
         }
       });
     });  
-  },  
+  },
   notify_mods: function(bot, message_from, message_body, cb){
     
     var attachments = [], attachment = {
