@@ -12,6 +12,31 @@ var fs = require('fs'),
     path = require('path'),
     helpers = require(__dirname + '/../helpers.js');
 
+function explain_message_move(bot, message_original){
+  var attachments = [], attachment = {
+    title: 'Moving messages between channels',
+    color: '#333',
+    fields: [],
+    mrkdwn_in: ['fields']
+  };
+
+
+  attachment.fields.push(
+    {
+      value: '1. First, mark the messages you want to move with :arrow_forward:.\n2. Wait a few seconds for Slack to index the messages.\n3. Finally, use the `/sidekick move #channel` command to move the marked messages to a new channel.'
+    }
+  );  
+  
+  attachments.push(attachment);
+
+  bot.api.chat.postEphemeral({
+    channel: message_original.channel,
+    user: message_original.user,
+    attachments: JSON.stringify(attachments)
+  });
+}
+
+
 module.exports = function(controller) {
   controller.on('slash_command', function(bot, message) {
     var message_original = message;
@@ -136,6 +161,25 @@ module.exports = function(controller) {
       });          
     }
   });
+
+  controller.middleware.receive.use(function(bot, message, next) {
+
+    var message_original = message;
+    if (message.type == 'interactive_message_callback') {
+      console.log('message_actions\n', message.actions);
+
+      if (message.actions[0].name === 'actions') {
+        if (message.actions[0].value === 'moderator_commands') {
+          helpers.is_admin(bot, message, function(err){
+            if (!err){
+              explain_message_move(bot, message_original);
+            }
+          });
+        }
+      }
+    }
+    next();
+  });  
 }
 
 

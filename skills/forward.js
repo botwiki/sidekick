@@ -1,3 +1,9 @@
+/*********************************************************************************
+
+This is a handler for forwarding tweets found in the #feed channel.
+
+*********************************************************************************/
+
 var helpers = require(__dirname + '/../helpers.js'),
     twitter = require(__dirname + '/../twitter.js'),
     channel_ids = require(__dirname + '/../channel_ids.js');

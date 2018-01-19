@@ -69,12 +69,17 @@ function start_cleanup(bot, message){
 
 module.exports = function(controller) {
   controller.on('ambient', function(bot, message){
-    helpers.update_last_active_time(controller, bot, message);
+    helpers.update_last_active_time(controller, bot, message.user, 'now');
   });
 
   controller.on('team_join', function(bot, message) {
-    helpers.update_last_active_time(controller, bot, message);    
-  });  
+    console.log('team_join', message);
+    helpers.update_last_active_time(controller, bot, message.user, 'now');    
+  });
+  
+  controller.on('reaction_added', function(bot, message){    
+    helpers.update_last_active_time(controller, bot, message.user, 'now');
+  });
   
   controller.on('slash_command', function(bot, message) {
     bot.replyAcknowledge();
@@ -182,10 +187,6 @@ module.exports = function(controller) {
             controller.storage.users.save(data, function(err, data) {
                 console.log(`saved user ${message_original.user}`, {err}, {data});
               
-                controller.storage.users.get(message_original.user, function(err, data) {
-                console.log(`loading user data for ${message_original.user} again...`, {err}, {data});
-                });
-              
                 var reply = message_original;
                 reply.text = 'Thank you!';
               
@@ -216,7 +217,11 @@ module.exports = function(controller) {
 
           bot.api.users.list({}, function(err, data){
             if (!err && data.members){
-              var active_users = [], inactive_users = [], deleted_users = [];              
+              var active_users = [], inactive_users = [], deleted_users = [];
+
+              active_users = data.members.filter(function(member){
+                return 
+              });
 
               var actions = data.members.map(function(member){
                 var action = new Promise(function(resolve, reject) {
@@ -244,23 +249,38 @@ module.exports = function(controller) {
                 values.forEach(function(member){                
 
                   if (member && member.__last_active && moment().diff( member.__last_active, 'days') < 32){
-                    attachment.fields.push({
-                      'value': `<@${member.name}> (${moment(member.__last_active).fromNow()})`,
-                      'thumb_url': member.profile.image_192,
-                      'short': true
-                    });
                     active_users.push(member);
                   }
                   else {
                     inactive_users.push(member);
                   }
-                                
                 });
 
-                attachment.title = `There are ${active_users.length} active Botmakers members:`;
+
+                active_users = active_users.sort(function(a, b){
+                  if (a && b && a.hasOwnProperty('__last_active') && b.hasOwnProperty('__last_active') && moment().diff( a.__last_active, 'minutes') < moment().diff( b.__last_active, 'minutes')){
+                    return -1;
+                  }
+                  else if (a && b && a.hasOwnProperty('__last_active') && b.hasOwnProperty('__last_active') && moment().diff( a.__last_active, 'minutes') > moment().diff( b.__last_active, 'minutes')){
+                    return 1;
+                  }
+                  else {
+                    return 0;
+                  }
+                });
+
+                active_users.forEach(function(member){
+                  attachment.fields.push({
+                    'value': `<@${member.name}> (${moment(member.__last_active).fromNow()})`,
+                    'thumb_url': member.profile.image_192,
+                    'short': true
+                  });
+                });
+
+                attachment.title = `There are ${helpers.number_with_commas(active_users.length)} active Botmakers members:`;
 
                 attachment.fields.push({
-                  value: `Also, there are ${inactive_users.length + deleted_users.length} inactive and deleted accounts.`
+                  value: `Also, there are ${helpers.number_with_commas(inactive_users.length + deleted_users.length)} inactive and deleted accounts.`
                 });
 
                 attachments.push(attachment);

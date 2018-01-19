@@ -14,6 +14,56 @@ var fs = require('fs'),
 
 var lockdown_status = false;
 
+
+function update_lockdown_status(controller, message, lockdown_status){
+  console.log({message});
+  var team_id = message.team_id || message.team.id;
+  
+  controller.storage.teams.get(team_id, function(err, data) {
+    if (!err){
+      data.lockdown = lockdown_status;
+      console.log(lockdown_status);
+      controller.storage.teams.save(data, function(err, data) {
+        //NOOP
+      });
+    }
+  });
+}
+
+function lockdown_activate(controller, bot, message){
+  lockdown_status = true;
+
+  bot.api.chat.postMessage({
+    channel: channel_ids.general,
+    text: `<@${message.user}> initiated lockdown, all posts will be deleted until lockdown is disabled.`
+  });
+  
+  bot.api.chat.postEphemeral({
+    channel: message.channel,
+    user: message.user,
+    text: 'Lockdown initiated. To disable, please use `/sidekick lockdown off`.',
+  });
+
+  update_lockdown_status(controller, message, lockdown_status);  
+}
+
+function lockdown_deactivate(controller, bot, message){
+  lockdown_status = false;
+
+  bot.api.chat.postMessage({
+    channel: channel_ids.general,
+    text: `<@${message.user}> cancelled lockdown.`
+  });
+  
+  bot.api.chat.postEphemeral({
+    channel: message.channel,
+    user: message.user,
+    text: 'Lockdown cancelled.',
+  });
+
+  update_lockdown_status(controller, message, lockdown_status);
+}
+
 module.exports = function(controller) {
   
   controller.storage.teams.all(function(err, all_team_data) {
@@ -54,44 +104,41 @@ module.exports = function(controller) {
         }
         else{
           if (args[0] === 'off'){
-            lockdown_status = false;
-            bot.api.chat.postMessage({
-              channel: channel_ids.general,
-              text: `<@${message.user}> cancelled lockdown.`
-            });
-            
-            bot.api.chat.postEphemeral({
-              channel:message.channel,
-              user: message.user,
-              text: 'Lockdown cancelled.',
-             });
+            lockdown_deactivate(controller, bot, message_original);
           }
           else{
-            lockdown_status = true;
-
-            bot.api.chat.postMessage({
-              channel: channel_ids.general,
-              text: `<@${message.user}> initiated lockdown, all posts will be deleted until lockdown is disabled.`
-            });
-            
-            bot.api.chat.postEphemeral({
-              channel:message.channel,
-              user: message.user,
-              text: 'Lockdown initiated. To disable, please use `/sidekick lockdown off`.',
-             });
+            lockdown_activate(controller, bot, message_original);
           }
-
-          
-          controller.storage.teams.get(message.team_id, function(err, data) {
-            data.lockdown = lockdown_status;
-            controller.storage.teams.save(data, function(err, data) {
-              //NOOP
-            });
-          });
         }      
       });
     }
   });
+  
+
+  controller.middleware.receive.use(function(bot, message, next) {
+    bot.replyAcknowledge();
+
+    var message_original = message;
+    if (message.type == 'interactive_message_callback') {
+      console.log('message_actions\n', message.actions);
+
+      if (message.actions[0].name === 'actions') {
+        if (message.actions[0].value === 'lockdown_activate') {
+          helpers.is_admin(bot, message, function(err){
+            if (!err){
+              lockdown_activate(controller, bot, message);
+            }
+          });
+        }
+        else if (message.actions[0].value === 'lockdown_deactivate') {
+          helpers.is_admin(bot, message, function(err){
+            if (!err){
+              lockdown_deactivate(controller, bot, message);
+            }
+          });
+        }        
+      }
+    }
+    next();
+  });
 }
-
-

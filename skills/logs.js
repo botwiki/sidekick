@@ -1,19 +1,15 @@
-var channel_ids = require(__dirname + '/../channel_ids.js'),
-    helpers = require(__dirname + '/../helpers.js');
-
 /*********************************************************************************
 
 Log group activity in the #logs channel.
 
 *********************************************************************************/
 
+var channel_ids = require(__dirname + '/../channel_ids.js'),
+    helpers = require(__dirname + '/../helpers.js');
+
 module.exports = function(controller) {
   controller.on('reaction_added', function(bot, message){
-    
-    helpers.update_last_active_time(controller, bot, message, function(err){
-    // NOOP
-    });
-    
+
     var message_user = message.user,
         message_reaction = message.reaction,
         message_channel = message.item.channel;
