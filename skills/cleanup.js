@@ -116,7 +116,6 @@ module.exports = function(controller) {
                   
                   var members = data.members.filter(function(member){
                     return !member.deleted;
-                    // return ['U0AQUMPSP'].indexOf(member.id) > -1;
                   });
                   
                   console.log(`processing ${members.length} member(s)...`);
@@ -219,9 +218,9 @@ module.exports = function(controller) {
             if (!err && data.members){
               var active_users = [], inactive_users = [], deleted_users = [];
 
-              active_users = data.members.filter(function(member){
-                return 
-              });
+              // active_users = data.members.filter(function(member){
+              //   return 
+              // });
 
               var actions = data.members.map(function(member){
                 var action = new Promise(function(resolve, reject) {
@@ -268,8 +267,10 @@ module.exports = function(controller) {
                     return 0;
                   }
                 });
+                
+                var top_active_users = active_users.slice(0, 100);
 
-                active_users.forEach(function(member){
+                top_active_users.forEach(function(member){
                   attachment.fields.push({
                     'value': `<@${member.name}> (${moment(member.__last_active).fromNow()})`,
                     'thumb_url': member.profile.image_192,
@@ -277,7 +278,7 @@ module.exports = function(controller) {
                   });
                 });
 
-                attachment.title = `There are ${helpers.number_with_commas(active_users.length)} active Botmakers members:`;
+                attachment.title = `There are ${helpers.number_with_commas(active_users.length)} active Botmakers members, here are ${top_active_users.length} most recent:`;
 
                 attachment.fields.push({
                   value: `Also, there are ${helpers.number_with_commas(inactive_users.length + deleted_users.length)} inactive and deleted accounts.`
