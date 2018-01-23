@@ -257,6 +257,8 @@ module.exports = function(controller) {
                     else {
                       inactive_users.push(member);
                     }
+                  } else {
+                    deleted_users.push(member);
                   }
                 });
 
@@ -284,10 +286,11 @@ module.exports = function(controller) {
                 });
 
                 attachment.title = `There are ${helpers.number_with_commas(active_users.length)} active Botmakers members, here are ${top_active_users.length} most recent:`;
+                
+                var bots_total = bots.length + 1; // The +1 is for @slackbot.
 
                 attachment.fields.push({
-                  // Note: The +1 to bots.length is for @slackbot.
-                  value: `Also, there are ${helpers.number_with_commas(bots.length + 1)} bots and ${helpers.number_with_commas(inactive_users.length + deleted_users.length)} inactive and deleted accounts.`
+                  value: `Also, there are ${helpers.number_with_commas(bots_total)} bots and ${helpers.number_with_commas(inactive_users.length)} inactive and ${helpers.number_with_commas(deleted_users.length)} deleted accounts.`
                 });
 
                 attachments.push(attachment);
