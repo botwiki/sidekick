@@ -216,7 +216,7 @@ module.exports = function(controller) {
 
           bot.api.users.list({}, function(err, data){
             if (!err && data.members){
-              var active_users = [], inactive_users = [], deleted_users = [];
+              var active_users = [], inactive_users = [], deleted_users = [], bots = [];
 
               // active_users = data.members.filter(function(member){
               //   return 
@@ -245,13 +245,18 @@ module.exports = function(controller) {
               var results = Promise.all(actions);
 
               results.then(function (values) {
-                values.forEach(function(member){                
-
-                  if (member && member.__last_active && moment().diff( member.__last_active, 'days') < 32){
-                    active_users.push(member);
-                  }
-                  else {
-                    inactive_users.push(member);
+                values.forEach(function(member){
+                  
+                  if (member){
+                    if (member.is_bot){
+                      bots.push(member);
+                    }
+                    else if (member.__last_active && moment().diff( member.__last_active, 'days') < 32){
+                      active_users.push(member);
+                    }
+                    else {
+                      inactive_users.push(member);
+                    }
                   }
                 });
 
@@ -281,7 +286,8 @@ module.exports = function(controller) {
                 attachment.title = `There are ${helpers.number_with_commas(active_users.length)} active Botmakers members, here are ${top_active_users.length} most recent:`;
 
                 attachment.fields.push({
-                  value: `Also, there are ${helpers.number_with_commas(inactive_users.length + deleted_users.length)} inactive and deleted accounts.`
+                  // Note: The +1 to bots.length is for @slackbot.
+                  value: `Also, there are ${helpers.number_with_commas(bots.length + 1)} bots and ${helpers.number_with_commas(inactive_users.length + deleted_users.length)} inactive and deleted accounts.`
                 });
 
                 attachments.push(attachment);
