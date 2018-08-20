@@ -20,7 +20,10 @@
     "node-cron": "^1.2.1",
     "fs-path": "^0.0.23",
     "twit": "^2.2.9",
-    "moment": "^2.20.1"
+    "moment": "^2.20.1",
+    "canvas": "^1.6.9",
+    "qs": "^6.5.1",
+    "mastodon": "^1.2.2"
   },
   "devDependencies": {},
   "repository": {

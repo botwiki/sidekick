@@ -14,7 +14,9 @@ module.exports = function(controller) {
         message_reaction = message.reaction,
         message_channel = message.item.channel;
     
-    if (message_channel && message_channel.charAt(0) !== 'G'){
+    console.log(message_channel);
+    
+    if (message_channel && message_channel.charAt(0) !== 'G' && message_channel.charAt(0) !== 'D'){
       console.log(message);
       bot.api.conversations.members({
         channel: channel_ids.logs
@@ -23,13 +25,14 @@ module.exports = function(controller) {
         if (data.members.indexOf(message_user) === -1){
           helpers.log_event(bot, `<@${message_user}> reacted with :${message_reaction}: in <#${message_channel}>.`);  
         }
-        else{
+        else if (message_channel && message_channel !== channel_ids.testing){
           bot.api.users.info({
             user: message_user
           }, function(err, data){
             console.log(data.user.name);
-            helpers.log_event(bot, `*${data.user.name}* reacted with :${message_reaction}: in <#${message_channel}>.`);  
-          });          
+            // helpers.log_event(bot, `*${data.user.name}* reacted with :${message_reaction}: in <#${message_channel}>.`);  
+            helpers.log_event(bot, `*someone in this channel* reacted with :${message_reaction}: in <#${message_channel}>.`);              
+          });
         }
       });
     }        

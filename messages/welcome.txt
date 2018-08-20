@@ -1,6 +1,6 @@
 Hi, welcome to Botmakers!
 
-Come introduce yourself in the <#C0ARTV6S2> channel :simple_smile:
+We are a diverse group of enthusiasts who make and share fun and creative online bots. Come introduce yourself in the <#C0ARTV6S2> channel :simple_smile:
 
 Some useful channels are:
 
@@ -9,12 +9,12 @@ Some useful channels are:
 - <#C0B0T2BL4>: share useful tools and resources
 - <#C0JJDUF44>: share your ideas and look for collaborators
 
-You can respond to this message with `For admins:` to have it forwarded to the group's admins. To see what else I can do, type `/sidekick`.
+There is usually no need to post the same message in multiple channels, and please avoid outright spam. This group is focused mainly on creative and open-source examples of bots, not really for "growth hacking".
 
-Be sure to check out the _Bot! zine_ newsletter (botzine.org), and follow twitter.com/botwikidotorg.
+You can respond to this message with `For admins:` to have it forwarded to the group's admins. To see what else I can do, type `/sidekick`.
 
 Always feel free to speak up, and you can also leave us anonymous feedback through one of our surveys at botwiki.org/about/surveys. And remember that we have a <#C0CET7D37>: botwiki.org/coc
 
-Please note that Botwiki and Botmakers are personal side projects and we appreciate any help: botwiki.org/about/support 
+Please note that Botwiki and Botmakers are personal side projects and we appreciate any help: botwiki.org/about/support-us
 
 Thank you :simple_smile:
