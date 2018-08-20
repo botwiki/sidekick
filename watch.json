@@ -1,0 +1,19 @@
+{
+  "install": {
+    "include": [
+      "^package\\.json$"
+    ]
+  },
+  "restart": {
+    "include": [
+      "glitch-assets",
+      "\\.js$",
+      "\\.json",
+      "^\\.env$"      
+    ],
+    "exclude": [
+      "README.md"
+    ]
+  },
+  "throttle": 100
+}

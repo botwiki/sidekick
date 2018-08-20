@@ -52,7 +52,7 @@ function post_to_feed(tweet){
   //tweet.id_str
   //tweet.text
   // console.log(`forwarding to #the-feed...\n`, tweet_url);
-  // console.log(`forwarding to #the-feed...\n`, {tweet});
+  console.log(`forwarding to #the-feed...\n`, {tweet});
   // console.log(`forwarding to #the-feed...\n`, tweet.text, tweet.entities.urls);
   
   var re = /((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*/gi;
@@ -90,6 +90,18 @@ function post_to_feed(tweet){
                   'confirm': {
                     'title': 'Please confirm',
                     'text': `Are you sure you want to retweet this tweet from @${tweet.user.screen_name}?`,
+                    'ok_text': 'Yes',
+                    'dismiss_text': 'No'
+                  }
+                },
+               {
+                  'name': 'retweet_submit',
+                  'text': 'Retweet+Submit',
+                  'type': 'button',
+                  'value': tweet.id_str,
+                  'confirm': {
+                    'title': 'Please confirm',
+                    'text': `Are you sure you want to retweet this tweet from @${tweet.user.screen_name} and ask them to submit their bot to Botwiki?`,
                     'ok_text': 'Yes',
                     'dismiss_text': 'No'
                   }
@@ -188,7 +200,27 @@ module.exports = {
       user_stream = T.stream('user');
 
       // console.log({keywords});
-      
+  
+      stream.on('error', function (data) {
+        console.log('Twitter connection error...');
+        console.log({data});
+      });
+
+      stream.on('disconnect', function (disconn) {
+        console.log('disconnected from Twitter...');
+        // console.log({disconn});
+      });
+
+      stream.on('connect', function (conn) {
+        console.log('connecting to Twitter...');
+        // console.log({conn});
+      });
+
+      stream.on('reconnect', function (reconn, res, interval) {
+        console.log(`reconnecting to Twitter... (statusCode: ${res.statusCode})`);
+      });
+
+
       stream.on('tweet', function (tweet) {
         // console.log({tweet});
         if ('retweeted_status' in tweet){
@@ -202,16 +234,16 @@ module.exports = {
         //   console.log({'tweet.extended_tweet': tweet.extended_tweet});
         // }
 
-        // console.log({
-        //   tweet_url: tweet_url,          
-        //   tweet_user_screen_name: tweet.user.screen_name,
-        //   tweet_text: tweet.text,
-        //   tweet_fulltext: (tweet.extended_tweet ? tweet.extended_tweet.full_text : null)          
-        // });
+        console.log({
+          tweet_url: tweet_url,          
+          tweet_user_screen_name: tweet.user.screen_name,
+          tweet_text: tweet.text,
+          tweet_fulltext: (tweet.extended_tweet ? tweet.extended_tweet.full_text : null)          
+        });
         
         var can_tweet = true;
 
-        // console.log('checking tweet against ignored keywords...');
+        console.log('checking tweet against ignored keywords...');
         
         keywords.ignored.forEach(function(keyword){
           if (keyword.charAt(0) === '@' && `@${tweet.user.screen_name}` === keyword){
@@ -228,7 +260,7 @@ module.exports = {
 
         if (can_tweet){
           can_tweet = false;
-          // console.log('checking tweet against tracked keywords...');
+          console.log('checking tweet against tracked keywords...');
 
           keywords.tracked.forEach(function(keyword){
             // console.log(`checking tweet against "${keyword}"...`);
@@ -260,24 +292,24 @@ module.exports = {
               if (posted_links.length === 0){
                 posted_links.push(final_url);
                 update_posted_links();
-                // console.log('forwarding to the feed channel...');
+                console.log('forwarding to the feed channel...');
                 post_to_feed(tweet);
               }
               else if (posted_links.indexOf(final_url) === -1 && !helpers.check_domain_blacklist(final_url)){
-                // console.log('found new URL:', final_url);
+                console.log('found new URL:', final_url);
 
                 posted_links.push(final_url);
                 update_posted_links();
-                // console.log('forwarding to the feed channel...');
+                console.log('forwarding to the feed channel...');
                 post_to_feed(tweet);
               }
               else{
-                // console.log('URL already posted, or blacklisted');
+                console.log('URL already posted, or blacklisted');
               }          
             })
           }
           else{
-            // console.log('forwarding to the feed channel...');
+            console.log('forwarding to the feed channel...');
             post_to_feed(tweet);            
           }
         }
@@ -328,9 +360,13 @@ module.exports = {
     });
   },
   prompt_submit: function(tweet_username, tweet_id, cb){
+    var intro_text = 'Hi' + (tweet_username ? ` @${tweet_username}`  : '' );
+
     T.post('statuses/update',{
       in_reply_to_status_id: tweet_id,
-      status: `@${tweet_username} Nice! Would you be interested in adding your bot to Botwiki? botwiki.org/submit-your-bot 😊`
+      auto_populate_reply_metadata: true,
+      // status: `${intro_text}, would you be interested in adding your bot to Botwiki? botwiki.org/submit-your-bot`
+      status: `Hi, would you be interested in adding your bot to Botwiki? botwiki.org/submit-your-bot`
     }, function(err, data, response) {
       if (cb){
         cb(err);
@@ -450,6 +486,39 @@ module.exports = {
             cb(err);
           }
         });
+      }
+    });
+  },
+  get_tweet_image: function(cb){
+    T.get('lists/statuses', {
+      slug: process.env.twitter_image_bot_list,
+      owner_screen_name: process.env.twitter_screen_name
+    },  function (err, data, response) {
+      if (cb){
+        
+        var rand_tweet = helpers.random_from_array(data),
+            rand_media = helpers.random_from_array(rand_tweet.entities.media);
+        
+        cb(rand_media);
+      }
+    });
+  },
+  update_profile_image: function(image_base64, cb) {
+    console.log('updating profile image...');
+    T.post('account/update_profile_image', {
+      image: image_base64
+    },
+    function(err, data, response) {
+      if (err){
+        console.log('ERROR:\n', err);
+        if (cb){
+          cb(err);
+        }
+      }
+      else{
+        if (cb){
+          cb(null);
+        }
       }
     });
   }  

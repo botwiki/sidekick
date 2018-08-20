@@ -14,7 +14,15 @@ var env = require('node-env-file');
 env(__dirname + '/.env');
 
 var fs = require('fs'),
-    path = require('path');
+    path = require('path'),
+    helpers = require(__dirname + '/helpers.js');
+
+var mastodon = require('./fediverse/mastodon.js');
+
+var twitter = require(__dirname + '/twitter.js'),
+    generators = {
+     overlay: require(__dirname + '/generators/overlay.js'), 
+    };
 
 if (!process.env.clientId || !process.env.clientSecret || !process.env.PORT) {
   console.log('Error: Specify clientId clientSecret and PORT in environment');
@@ -43,7 +51,6 @@ fs.readFile(path.join(__dirname, 'messages/welcome.txt'), 'utf8', function (err,
   }
 });
 
-
 var twitter_options = {
   tracked_keywords: [],
   ignored_keywords: []
@@ -58,6 +65,8 @@ if (process.env.MONGO_URI) {
 
 var controller = Botkit.slackbot(bot_options);
 controller.startTicking();
+
+helpers.cleanup(controller, true);
 
 var cron = require('node-cron'),
     cron_jobs = require(__dirname + '/cron_jobs.js');
@@ -78,3 +87,46 @@ var normalizedPath = require("path").join(__dirname, "skills");
 require("fs").readdirSync(normalizedPath).forEach(function(file) {
   require("./skills/" + file)(controller);
 });
+
+
+// twitter.get_tweet_image(function(tweet_media){
+//   var w = 500, h = 500,
+//       tweet_media_w = tweet_media.sizes.large.w,
+//       tweet_media_h = tweet_media.sizes.large.h,
+//       aspect_ratio = 1;
+
+//   if (tweet_media_w < w){
+//     tweet_media_w = w;
+//     aspect_ratio = w / tweet_media_w;
+//     tweet_media_h = h * aspect_ratio;
+//   }
+
+//   if (tweet_media_h < h){
+//     tweet_media_h = h;
+//     aspect_ratio = h / tweet_media_h;
+//     tweet_media_w = w * aspect_ratio;
+//   }
+//   generators.overlay.overlay_images([
+//     {
+//       url: tweet_media.media_url_https,
+//       x: 0,
+//       y: 0,
+//       width: tweet_media_w,
+//       height: tweet_media_h
+//     },
+//     {
+//       url: 'https://cdn.glitch.com/a8e332a3-3d82-4c9d-86c8-4209720f2ca9%2Fb-inverted.png',
+//       x: 0,
+//       y: 0,
+//       width: w,
+//       height: h
+//     }
+//   ], w, h, function(err, img_data){
+//     twitter.update_profile_image(img_data, function(err){
+//       if (!err){
+//         console.log('updated!');
+//       }
+//     });
+//   });
+// });
+

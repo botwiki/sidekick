@@ -2,8 +2,6 @@
 
 Cleanup time! This helps the moderator figure out which accounts are no longer used.
 
-/sidekick cleanup
-
 *********************************************************************************/
 
 var request = require('request');
@@ -111,7 +109,7 @@ module.exports = function(controller) {
                   bot.api.chat.postEphemeral({
                     channel: message_original.channel,
                     user: message_original.user,
-                    text: 'processing...'
+                    text: '_processing..._'
                   });
                   
                   var members = data.members.filter(function(member){
@@ -181,10 +179,10 @@ module.exports = function(controller) {
 
             data.last_active = moment().format();
 
-            console.log(`loaded data for user ${message_original.user}...`, {data});
+            // console.log(`loaded data for user ${message_original.user}...`, {data});
 
             controller.storage.users.save(data, function(err, data) {
-                console.log(`saved user ${message_original.user}`, {err}, {data});
+                // console.log(`saved user ${message_original.user}`, {err}, {data});
               
                 var reply = message_original;
                 reply.text = 'Thank you!';
@@ -206,7 +204,14 @@ module.exports = function(controller) {
           
         }
         else if (message.actions[0].value === 'see_active_members') {          
-          console.log('retrieving...');
+          console.log('processing...');
+
+          bot.api.chat.postEphemeral({
+            channel: message.channel,
+            user: message.user,
+            text: '_processing..._'
+          });
+
           var attachments = [], attachment = {
             title: 'Active members',
             color: '#36a64f',

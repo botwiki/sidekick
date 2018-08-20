@@ -104,7 +104,7 @@ module.exports = {
   },
   update_last_active_time: function(controller, bot, user_id, active_time, cb){
     controller.storage.users.get(user_id, function(err, data) {
-      console.log(`loading user data for ${user_id}...`, {err}, {data});
+//      console.log(`loading user data for ${user_id}...`, {err}, {data});
 
       if (err || !data){
         var data = {
@@ -118,10 +118,10 @@ module.exports = {
       else{
         data.last_active = active_time;      
       }
-      console.log(`loaded data for user ${user_id}...`, {data});
+//      console.log(`loaded data for user ${user_id}...`, {data});
 
       controller.storage.users.save(data, function(err, data) {
-        console.log(`saved user ${user_id}`, {err}, {data});
+        // console.log(`saved user ${user_id}`, {err}, {data});
 
 //         controller.storage.users.get(user_id, function(err, data) {
 //           console.log(`loading user data for ${user_id} again...`, {err}, {data});
@@ -168,6 +168,7 @@ module.exports = {
   },
   get_group_info: function(bot, message, cb){
     var helpers = this;
+      
     /* Get basic info about the group. */
     var original_message = message;
     bot.api.users.list({
@@ -235,6 +236,62 @@ module.exports = {
         short: true
       });
       attachments.push(attachment);
+      
+      if (original_message && original_message.user){
+        helpers.is_admin(bot, original_message, function(err){
+          if (!err){
+            console.log(online_users.map(function(user){
+              return user.id
+            }));
+
+            console.log(original_message.user);
+
+            var attachments = [], attachment = {
+              color: '#36a64f',
+              fields: [],
+              mrkdwn_in: ['text,fields']
+            };
+
+             online_users.forEach(function(user){
+              bots.push(user);
+              // console.log(user);
+              attachment.fields.push({
+                value: `<@${user.name}>`,
+                __value: `<@${user.profile.display_name || user.name}>`,
+                thumb_url: user.profile.image_192,
+                short: true
+              });
+            });
+            
+            console.log(attachment);
+
+            attachment.fields = attachment.fields.sort(function(a, b){
+              var name_a = a.__value.toLowerCase(),
+                  name_b = b.__value.toLowerCase();
+
+              if (name_a < name_b){
+                return -1 
+              }
+              if (name_a > name_b){
+                return 1
+              }
+              return 0
+            });            
+            
+            attachments.push(attachment);
+
+            bot.reply(original_message, {
+              text: 'Online right now:',
+                // text: online_users.map(function(user){
+                //   return `<@${user.name}>`
+                // }).join(' ')            
+              attachments: attachments
+            });        
+          }
+        });        
+      }
+      
+      
       cb(null, attachments);
     });   
   },
@@ -276,6 +333,87 @@ module.exports = {
       cb(null, attachments);
     });   
   },
+  cleanup: function(controller, confirm_delete){
+    var helpers = this,
+        prevent_user_delete_list = process.env.PREVENT_USER_DELETE.split(',');
+    
+    console.log(prevent_user_delete_list);
+
+    controller.storage.teams.all(function(err, all_team_data) {
+      var bot = controller.spawn({token: all_team_data[0].token});
+
+      bot.api.users.list({
+        presence: true
+      }, function(message, data){
+        var all_users = data.members;
+
+        var index = 0;
+        
+        all_users.forEach(function(user, user_index){
+          if (!user.deleted && !user.is_bot && user.name !== 'slackbot'){
+            var user_name = '', user_name_original;
+
+            if (user.name){
+              user_name = user.name;
+              user_name_original = user_name;
+            }
+            if (user.profile && user.profile.display_name){
+              if (user_name.length === 0 ){
+                user_name = user.profile.display_name;
+                user_name_original = user_name;
+              }
+              else{
+                user_name += ' (' + user.profile.display_name + ')';
+              }
+            }
+
+            controller.storage.users.get(user.id, function(err, user_data) {
+              // if (!user_data){
+                // index++;
+                // console.log(index + ': ' + user_name + ': no login data');
+                // setTimeout(function(){
+                //   helpers.deactivate(bot, null, user.id, function(){
+
+                //   });
+                // }, index * 2000);
+              // }
+              if (user_data){
+                // console.log(`${user_index}: processing ${user_name} (${moment().diff( user_data.last_active, 'days')} days ago)...`);
+
+                // if (!user_data.last_active){
+                //   index++;
+                //   console.log(index + ': ' + user_name + ': no login data');
+                //   setTimeout(function(){
+                //     helpers.deactivate(bot, null, user.id, function(){
+
+                //     });
+                //   }, index * 2000);
+                // }
+                if (user_data.last_active && moment().diff( user_data.last_active, 'days') > 180){
+
+                  console.log(index + ': ' + user_name + ': last online: ' + moment().diff( user_data.last_active, 'days') + ' days ago');
+                  if (prevent_user_delete_list.indexOf(user_name_original) > -1){
+                    console.log(`skipping ${user_name}...`);
+                  }
+                  else{
+                    if (confirm_delete === true){
+                        console.log(`deactivating ${user_name}...`);  
+                        index++;
+                        setTimeout(function(){
+                          helpers.deactivate(bot, null, user_data.id, function(){
+                          });
+                        }, index * 1000);
+                    }
+                  }                  
+                }
+              }
+            });
+          }
+        });
+      });
+    });
+  
+  },
   notify: function(bot, message, title, text){
     var attachments = [], attachment = {
       title: title,
@@ -296,10 +434,13 @@ module.exports = {
       attachments: JSON.stringify(attachments)
     });       
   },
+  get_filename_from_url: function(url) {
+    return url.substring(url.lastIndexOf('/') + 1);
+  },  
   deactivate: function(bot, message, user_id, cb){
     var helpers = this;
     console.log(`Deleting user <@${user_id}>...`);
-
+    // return false;
     var options = {
       token: process.env.superToken,
       user: user_id

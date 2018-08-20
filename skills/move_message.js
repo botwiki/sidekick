@@ -5,7 +5,6 @@ Move messages marked with :arrow_forward: to a specified channel.
 
 *********************************************************************************/
 
-
 var request = require('request');
 
 var fs = require('fs'),
@@ -19,7 +18,6 @@ function explain_message_move(bot, message_original){
     fields: [],
     mrkdwn_in: ['fields']
   };
-
 
   attachment.fields.push(
     {
@@ -36,11 +34,9 @@ function explain_message_move(bot, message_original){
   });
 }
 
-
 module.exports = function(controller) {
   controller.on('slash_command', function(bot, message) {
     var message_original = message;
-    
     var {command, args} = helpers.parse_slash_command(message);
 
     if (command === 'move'){
@@ -180,6 +176,113 @@ module.exports = function(controller) {
     }
     next();
   });  
+  
+ 
+  
+  controller.on('message_action', function(bot, message, cb) {
+    var callback_id = message.callback_id;
+    
+    if (callback_id === 'move_message'){
+      var original_message = message.message,
+          message_data = JSON.stringify({
+            user_id: message.user,
+            message_url: `https://${process.env.group_name}.slack.com/archives/${message.channel}/p${message.message_ts.replace('.', '')}`,
+            message_text: message.message.text,
+            files: message.message.files,
+            original_channel: message.channel,
+            message_ts: message.message.ts
+          });
+
+      console.log(message_data);
+      
+      helpers.is_admin(bot, message, function(err){
+        if (err){
+          bot.api.chat.postEphemeral({
+            channel: message_data.original_channel,
+            user: message_data.user_id,
+            text: `<@${message_data.user_id}> Sorry, only admins can do that.`
+          });              
+          
+        }
+        else{
+          console.log(message.message.files);
+          console.log({original_message: message});
+
+          bot.api.dialog.open({
+            trigger_id: message.trigger_id,
+            dialog: JSON.stringify({
+              'callback_id': 'move_message_to_channel',
+              'title': 'Move message',
+              'submit_label': 'Move',
+              'elements': [
+                {
+                  'label': 'Choose channel.',
+                  'type': 'select',
+                  'name': 'forward_channel_select',
+                  'data_source': 'channels'
+                },            
+                {
+                  'label': 'Message data',
+                  'name': 'message_data',
+                  'type': 'textarea',
+                  'value': message_data
+                }
+              ]
+            })
+          }, function(err, data){
+            console.log({err, data});
+            if (err){
+              console.log(data.response_metadata)
+            }
+          });
+
+
+          
+        }
+      });
+
+    }
+  });    
+  
+  controller.on('dialog_submission', function(bot, event) {
+    bot.replyAcknowledge();
+    var event = event;
+    var submission = event.submission;    
+    if (event.callback_id === 'move_message_to_channel'){
+      // console.log({event}, {submission});      
+
+      var message_data = JSON.parse(submission.message_data);
+      console.log(message_data);
+      
+      bot.api.chat.postMessage({
+        channel: submission.forward_channel_select,
+        parse: 'link_names ',
+        mrkdwn: true,
+        text: `Originally posted in <#${message_data.original_channel}> by <@${message_data.user_id}>:\n>>> ${message_data.message_text}`,
+        // files: message_data.files,
+        unfurl_links: true
+      }, function(err, message){
+        if (err){
+          console.log('error:\n', err);
+        }else{
+          bot.api.chat.delete({
+            token: process.env.superToken,
+            channel: message_data.original_channel,
+            ts: message_data.message_ts
+          }, function(err, message){
+            if (err){
+              console.log('error:\n', err);
+            }
+          });                      
+        }
+      });      
+
+      
+    }   
+  });    
+  
+  
+  
 }
 
 

@@ -48,9 +48,9 @@ module.exports = function(controller) {
     bot.replyAcknowledge();
     var event = event;
     var submission = event.submission;
-    console.log({event}, {submission});
     
     if (event.callback_id === 'send_moderators_message'){
+      console.log({event}, {submission});
       helpers.notify_mods(bot, event.user, submission.message, function(err, data){
         if (err){
           bot.api.chat.postEphemeral({

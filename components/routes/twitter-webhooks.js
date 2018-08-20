@@ -69,44 +69,22 @@ webserver.post('/twitter-webhooks', function (req, res) {
           /* Twitter sends data about every message being sent, so we need to check if the bot is the sender. */
           console.log(`new direct message from ${sender_name} (@${sender_screen_name}): > ${message_text}`);
           
-/*
-TODO:
-if (quick_reply_response.metadata){
-  if (quick_reply_response.metadata === 'twitter_qr_submit_bot')
-}
+        /*
+        TODO:
+        if (quick_reply_response.metadata){
+          if (quick_reply_response.metadata === 'twitter_qr_submit_bot')
+        }
 
-*/          
-          
+        */          
 
           twitter.is_whitelisted(sender_id, function(err){
-
-            if (message_text && message_text.charAt(0) === '!'){
-              var message_text_arr = message_text.split(' ');
-              var command = message_text_arr[0].replace('!', '');
-
-              message_text = message_text_arr.slice(1).join(' ');
-
-              if (command === 'submit'){
-                var r = request.get(message_text.trim(), function (err, res, body) {
-                  if (r !== undefined){
-                    var tweet_id = twitter.get_tweet_id_from_tweet_url(r.uri.href),
-                        tweet_username = twitter.get_user_id_from_tweet_url(r.uri.href);
-
-                    twitter.retweet(tweet_id, function(err){
-                      if (err){
-                        console.log({err});
-                      } else {
-                        twitter.dm(sender_id, 'Retweeted!');
-                      }
-                    });
-                    twitter.prompt_submit(tweet_username, tweet_id);
-                  }
-                });
-              }
-            }
-            else if (message_text && message_text.indexOf('https://t.co/') > -1){
+            if (message_text && message_text.indexOf('https://t.co/') > -1){
               // a tweet was shared via DM
-              var r = request.get(message_text, function (err, res, body) {
+              var url_regex = new RegExp(/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi);
+
+              var tweet_url = message_text.match(url_regex)[0];
+
+              var r = request.get(tweet_url, function (err, res, body) {
                 if (r !== undefined){
                   twitter.retweet(twitter.get_tweet_id_from_tweet_url(r.uri.href), function(err){
                     if (err){
@@ -118,6 +96,25 @@ if (quick_reply_response.metadata){
                 }
               });
             } 
+
+            var command = '';
+
+            try{
+              command = message_text.toLowerCase().split(' ')[0];
+            }
+            catch(err){ /* noop */ }
+
+            if (command === 'submit' || command === '!submit'){
+              var r = request.get(tweet_url, function (err, res, body) {
+                if (r !== undefined){
+                  var tweet_id = twitter.get_tweet_id_from_tweet_url(r.uri.href),
+                      tweet_username = twitter.get_user_id_from_tweet_url(r.uri.href);
+
+                  twitter.prompt_submit(tweet_username, tweet_id);
+                  twitter.dm(sender_id, 'Asked to person to submit their bot.');
+                }
+              });
+            }
           });
         }
         else {

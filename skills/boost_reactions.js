@@ -19,7 +19,7 @@ module.exports = function(controller) {
         message_reaction = message.reaction,
         message_channel = message.item.channel;
     
-    if (message_channel.charAt(0) !== 'G'){
+    if (message_channel.charAt(0) === 'C'){
       /* Ignore private channels. */
       bot.api.channels.info({
         channel: message_channel,

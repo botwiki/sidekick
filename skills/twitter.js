@@ -397,7 +397,8 @@ module.exports = function(controller) {
       // console.log('message_actions\n', message);
       var original_message = message;
 
-      if (original_message.actions[0].name === 'retweet') {
+      function retweet(bot, original_message, message, submit_prompt){
+
         helpers.is_admin(bot, message, function(err){
           if (err){
             bot.api.chat.postEphemeral({
@@ -437,7 +438,10 @@ module.exports = function(controller) {
                 //   channel: original_message.channel,
                 //   user: original_message.user,
                 //   text: 'Retweeted :thumbsup:'
-                // });                
+                // });
+                if (submit_prompt === true){
+                    twitter.prompt_submit(null, original_message.actions[0].value);                
+                }
                 bot.api.chat.postMessage({
                   channel: original_message.channel,
                   text: `<@${original_message.user}> Retweeted :thumbsup:`
@@ -446,6 +450,13 @@ module.exports = function(controller) {
             });
           }
         });
+      }
+
+      if (original_message.actions[0].name === 'retweet') {
+        retweet(bot, original_message, message, false);
+      }
+      else if (original_message.actions[0].name === 'retweet_submit') {
+        retweet(bot, original_message, message, true);
       }
       // else if (message.actions[0].value === 'forward_dialog') {
       else if (message.actions[0].value.indexOf('forward_dialog') > -1) {
@@ -466,7 +477,7 @@ module.exports = function(controller) {
                 'value': tweet_url
               },              
               {
-                'label': 'Choose channel.',
+                'label': 'Choose channel',
                 'type': 'select',
                 'name': 'forward_channel_select',
                 'placeholder': '#channel',
