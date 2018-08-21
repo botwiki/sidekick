@@ -55,12 +55,14 @@ module.exports = function(controller){
               });
               // console.log(botsinspace_bots);
 
-              bot.api.chat.postMessage({
-                  channel: channel_ids.twitter_feed,
-                  text: `New bots?\n-${new_bots_maybe.join('\n-')}`         
-              });              
+              if (new_bots_maybe.length > 0){
+                bot.api.chat.postMessage({
+                    channel: channel_ids.twitter_feed,
+                    text: `New bots?\n-${new_bots_maybe.join('\n-')}`         
+                });              
 
-              fs.writeFileSync(__dirname + '/.data/botsinspace-bots.txt', JSON.stringify(botsinspace_bots));
+                fs.writeFileSync(__dirname + '/.data/botsinspace-bots.txt', JSON.stringify(botsinspace_bots));                
+              }
             });
           });
 
