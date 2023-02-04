@@ -10,20 +10,23 @@
     "body-parser": "^1.15.2",
     "botkit": "^0.6",
     "botkit-storage-mongo": "^1.0.6",
+    "canvas": "^1.6.9",
     "dashbot": "0.7.4",
     "debug": "^2.3.3",
     "express": "^4.14.0",
-    "node-env-file": "^0.1.8",
-    "querystring": "^0.2.0",
-    "request": "^2.79.0",
-    "wordfilter": "^0.2.6",
-    "node-cron": "^1.2.1",
     "fs-path": "^0.0.23",
-    "twit": "^2.2.9",
+    "mastodon": "^1.2.2",
     "moment": "^2.20.1",
-    "canvas": "^1.6.9",
+    "node-cron": "^1.2.1",
+    "node-env-file": "^0.1.8",
     "qs": "^6.5.1",
-    "mastodon": "^1.2.2"
+    "querystring": "^0.2.0",
+    "request": "2.88.0",
+    "twit": "^2.2.11",
+    "wordfilter": "^0.2.6"
+  },
+  "engines": {
+    "node": "8.17.0"
   },
   "devDependencies": {},
   "repository": {
