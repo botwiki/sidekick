@@ -5,13 +5,13 @@ botwiki.org/coc
 
 *********************************************************************************/
 
-var wordfilter = require('wordfilter');
+const wordfilter = require('wordfilter');
 
-module.exports = function(controller) {
+module.exports = (controller) => {
   /* Remind folks using "guys" about gender-neutral alternatives. */
   controller.hears([
     'guys'
-  ], 'mention,direct_message,direct_mention,ambient', function(bot, message) {
+  ], 'mention,direct_message,direct_mention,ambient', (bot, message) => {
       if (!wordfilter.blacklisted(message.match[1])) {
         bot.api.chat.postEphemeral({
           channel:message.channel,
@@ -28,7 +28,7 @@ module.exports = function(controller) {
   /* Try to catch ableist language. */
   controller.hears([
     'crazy', 'retarded', 'nuts', 'idiot', 'dumb', 'insane', 'lame'
-  ], 'mention,direct_message,direct_mention,ambient', function(bot, message) {
+  ], 'mention,direct_message,direct_mention,ambient', (bot, message) => {
       if (!wordfilter.blacklisted(message.match[1])) {
         
         bot.api.chat.postEphemeral({

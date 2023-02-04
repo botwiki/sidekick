@@ -1,26 +1,27 @@
-html, body {
-    padding: 0;
-    margin: 0;
-    height: 100%;
-    font-family: 'helvetica', sans-serif;
-    font-size: 18px;
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  font-family: "helvetica", sans-serif;
+  font-size: 18px;
 }
 
 a {
-    color: #0741DD;
+  color: #0741dd;
 }
 
 .button {
-    display: block;
+  display: block;
 }
 
 .wrapper div {
-    text-align: center;
+  text-align: center;
 }
 
 .wrapper {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

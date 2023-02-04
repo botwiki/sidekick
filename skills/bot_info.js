@@ -5,49 +5,46 @@ List bots added to the group.
 
 *********************************************************************************/
 
-var request = require('request'),
-    wordfilter = require('wordfilter');
+const request = require("request"),
+  wordfilter = require("wordfilter"),
+  fs = require("fs"),
+  path = require("path"),
+  helpers = require(__dirname + "/../helpers.js");
 
-var fs = require('fs'),
-    path = require('path'),
-    helpers = require(__dirname + '/../helpers.js');
-
-module.exports = function(controller) {
-  controller.hears([
-    'list bots',
-    'list all bots',
-    'what bots are here'
-  ], 'direct_message,direct_mention', function(bot, message) {
-      var message_original = message;
+module.exports = (controller) => {
+  controller.hears(
+    ["list bots", "list all bots", "what bots are here"],
+    "direct_message,direct_mention",
+    (bot, message) => {
+      let messageOriginal = message;
       if (!wordfilter.blacklisted(message.match[1])) {
-        helpers.get_bot_info(bot, message, function(err, data){
-          bot.reply(message_original, {
-            attachments: data
+        helpers.get_bot_info(bot, message, (err, data) => {
+          bot.reply(messageOriginal, {
+            attachments: data,
           });
-        });        
+        });
       } else {
-          bot.reply(message, '_sigh_');
+        bot.reply(message, "_sigh_");
       }
-  });  
-  
-  controller.on('slash_command', function(bot, message) {
-    var message_original = message;
-    var message_text_arr = message.text.split(' ');
-    var command = message_text_arr[0],
-        channel = helpers.parse_channel_ids(message_text_arr[1])[0];
+    }
+  );
 
-    if (command === 'bots'){
+  controller.on("slash_command", (bot, message) => {
+    let messageOriginal = message;
+    let messageText_arr = message.text.split(" ");
+    let command = messageText_arr[0],
+      channel = helpers.parse_channel_ids(messageText_arr[1])[0];
+
+    if (command === "bots") {
       // bot.replyAcknowledge();
 
-      helpers.get_bot_info(bot, message, function(err, data){
+      helpers.get_bot_info(bot, message, (err, data) => {
         bot.api.chat.postEphemeral({
-          channel:message_original.channel,
-          user: message_original.user,
-          attachments: data
+          channel: messageOriginal.channel,
+          user: messageOriginal.user,
+          attachments: data,
         });
       });
     }
   });
-}
-
-
+};
