@@ -15,6 +15,7 @@ env(__dirname + "/.env");
 
 const fs = require("fs"),
   path = require("path"),
+  request = require("request"),
   helpers = require(__dirname + "/helpers.js");
 
 const mastodon = require("./networks/mastodon.js");
