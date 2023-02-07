@@ -13,8 +13,8 @@ const path = require("path"),
     access_token: process.env.twitter_access_token,
     access_token_secret: process.env.twitter_access_token_secret,
   },
-  T = new Twit(twitter_config),
-  twitter = require(__dirname + "/../../twitter.js");
+  T = new Twit(twitter_config);
+  // twitter = require(__dirname + "/../../twitter.js");
 
 module.exports = (webserver, controller) => {
   webserver.use(bodyParser.urlencoded({ extended: false }));
@@ -39,9 +39,9 @@ module.exports = (webserver, controller) => {
       );
     } else {
       console.log("no crc_token, registering webhook url");
-      twitter.register_webhook(res, (err) => {
-        // NOOP
-      });
+      // twitter.register_webhook(res, (err) => {
+      //   // NOOP
+      // });
     }
   });
 
@@ -82,58 +82,58 @@ module.exports = (webserver, controller) => {
 
         */
 
-            twitter.is_whitelisted(sender_id, (err) => {
-              if (message_text && message_text.indexOf("https://t.co/") > -1) {
-                // a tweet was shared via DM
-                let url_regex = new RegExp(
-                  /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi
-                );
+//             twitter.is_whitelisted(sender_id, (err) => {
+//               if (message_text && message_text.indexOf("https://t.co/") > -1) {
+//                 // a tweet was shared via DM
+//                 let url_regex = new RegExp(
+//                   /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi
+//                 );
 
-                let tweet_url = message_text.match(url_regex)[0];
+//                 let tweet_url = message_text.match(url_regex)[0];
 
-                let r = request.get(tweet_url, (err, res, body) => {
-                  if (r !== undefined) {
-                    twitter.retweet(
-                      twitter.get_tweet_id_from_tweet_url(r.uri.href),
-                      (err) => {
-                        if (err) {
-                          console.log({ err });
-                        } else {
-                          twitter.dm(sender_id, "Retweeted!");
-                        }
-                      }
-                    );
-                  }
-                });
-              }
+//                 let r = request.get(tweet_url, (err, res, body) => {
+//                   if (r !== undefined) {
+//                     twitter.retweet(
+//                       twitter.get_tweet_id_from_tweet_url(r.uri.href),
+//                       (err) => {
+//                         if (err) {
+//                           console.log({ err });
+//                         } else {
+//                           twitter.dm(sender_id, "Retweeted!");
+//                         }
+//                       }
+//                     );
+//                   }
+//                 });
+//               }
 
-              let command = "";
+//               let command = "";
 
-              try {
-                command = message_text.toLowerCase().split(" ")[0];
-              } catch (err) {
-                /* noop */
-              }
+//               try {
+//                 command = message_text.toLowerCase().split(" ")[0];
+//               } catch (err) {
+//                 /* noop */
+//               }
 
-              if (command === "submit" || command === "!submit") {
-                let r = request.get(tweet_url, (err, res, body) => {
-                  if (r !== undefined) {
-                    let tweet_id = twitter.get_tweet_id_from_tweet_url(
-                        r.uri.href
-                      ),
-                      tweet_username = twitter.get_user_id_from_tweet_url(
-                        r.uri.href
-                      );
+//               if (command === "submit" || command === "!submit") {
+//                 let r = request.get(tweet_url, (err, res, body) => {
+//                   if (r !== undefined) {
+//                     let tweet_id = twitter.get_tweet_id_from_tweet_url(
+//                         r.uri.href
+//                       ),
+//                       tweet_username = twitter.get_user_id_from_tweet_url(
+//                         r.uri.href
+//                       );
 
-                    twitter.prompt_submit(tweet_username, tweet_id);
-                    twitter.dm(
-                      sender_id,
-                      "Asked to person to submit their bot."
-                    );
-                  }
-                });
-              }
-            });
+//                     twitter.prompt_submit(tweet_username, tweet_id);
+//                     twitter.dm(
+//                       sender_id,
+//                       "Asked to person to submit their bot."
+//                     );
+//                   }
+//                 });
+//               }
+//             });
           } else {
             console.log("the bot sent a message");
           }

@@ -7,7 +7,7 @@ const fs = require("fs"),
   moment = require("moment"),
   channel_ids = require(__dirname + "/channel_ids.js");
 
-module.exports = {
+const helpers = {
   parse_channel_ids: (str) => {
     let patt = new RegExp(/(?:<#).*?(?:>)/gi),
       channelIDsParsed = [],
@@ -135,9 +135,13 @@ module.exports = {
       }
 
       if (active_time === "now") {
-        data.last_active = moment().format();
+        if (data) {
+          data.last_active = moment().format();
+        }
       } else {
-        data.last_active = active_time;
+        if (data) {
+          data.last_active = active_time;
+        }
       }
       //      console.log(`loaded data for user ${user_id}...`, {data});
 
@@ -372,8 +376,7 @@ module.exports = {
     );
   },
   cleanup: (controller, confirm_delete) => {
-    let helpers = this,
-      prevent_user_delete_list = process.env.PREVENT_USER_DELETE.split(",");
+    let prevent_user_delete_list = process.env.PREVENT_USER_DELETE.split(",");
 
     console.log(prevent_user_delete_list);
 
@@ -522,3 +525,5 @@ module.exports = {
     });
   },
 };
+
+module.exports = helpers;

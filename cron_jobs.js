@@ -1,10 +1,11 @@
 const fs = require("fs"),
   fsPath = require("fs-path"),
   util = require("util"),
+  request = require("request"),
   generators = {
     overlay: require(__dirname + "/generators/overlay.js"),
   },
-  twitter = require(__dirname + "/twitter.js"),
+  // twitter = require(__dirname + "/twitter.js"),
   helpers = require(__dirname + "/helpers.js"),
   moment = require("moment"),
   channel_ids = require(__dirname + "/channel_ids.js");
@@ -62,78 +63,96 @@ module.exports = (controller) => {
                       // bot
                     });
 
-                    bot.api.chat.postMessage(
-                      {
-                        channel: channel_ids.twitter_feed,
-                        // title: '',
-                        // text: tweet_url,
-                        attachments: [
-                          {
-                            text: `<@stefan> New bot?\n>${status.content}`,
-                            author_name: `@${
-                              status.account.display_name ||
-                              status.account.username
-                            }`,
-                            author_link: `https://botsin.space/@${status.account.username}`,
-                            author_icon: status.account.avatar_static,
-                            footer: status.url,
-                            // 'footer_icon': 'https://platform.slack-edge.com/img/default_application_icon.png',
-                            // 'fallback': `@${tweet.user.screen_name}: ${tweet_text_parsed}`,
-                            callback_id: "sidekick_actions",
-                            color: "#e8e8e8",
-                            attachment_type: "default",
-                            actions: [
-                              {
-                                name: "boost_toot",
-                                text: "Boost",
-                                type: "button",
-                                value: status.uri,
-                                confirm: {
-                                  title: "Please confirm",
-                                  text: `Are you sure you want to boost this toot from ${status.account.display_name}?`,
-                                  ok_text: "Yes",
-                                  dismiss_text: "No",
-                                },
-                              },
-                              {
-                                name: "boost_and_prompt",
-                                text: "Boost+Prompt",
-                                type: "button",
-                                value: status.uri,
-                                confirm: {
-                                  title: "Please confirm",
-                                  text: `Are you sure you want to boost this toot from ${status.account.display_name} and ask them to submit their bot to Botwiki?`,
-                                  ok_text: "Yes",
-                                  dismiss_text: "No",
-                                },
-                              },
-                              {
-                                name: "submit_to_botwiki",
-                                text: "Submit",
-                                type: "button",
-                                value: status.uri,
-                                confirm: {
-                                  title: "Please confirm",
-                                  text: `Are you sure you want submit this bot to Botwiki?`,
-                                  ok_text: "Yes",
-                                  dismiss_text: "No",
-                                },
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                      (err) => {
-                        if (err) {
-                          console.log({ err });
-                        }
-                      }
-                    );
+                    const botURL = `https://botsin.space/@${status.account.username}`;
+                    const botwikiSubmitURL = `https://metascraper.stefanbohacek.dev/?url=${ botURL }&mode=botwiki`
+                    let r = request.get(botwikiSubmitURL, (err, res, body) => {
 
-                    fs.writeFileSync(
-                      __dirname + "/.data/botsinspace-bots.txt",
-                      JSON.stringify(botsinspaceBots)
-                    );
+                      body = JSON.parse(body);
+                      console.log(body.submit_url);
+
+
+                      bot.api.chat.postMessage(
+                        {
+                          channel: channel_ids.twitter_feed,
+                          // title: '',
+                          // text: tweet_url,
+                          attachments: [
+                            {
+                              text: `<@stefan> New bot?\n>${status.content}`,
+                              author_name: `@${
+                                status.account.display_name ||
+                                status.account.username
+                              }`,
+                              author_link: botURL,
+                              author_icon: status.account.avatar_static,
+                              footer: status.url,
+                              // 'footer_icon': 'https://platform.slack-edge.com/img/default_application_icon.png',
+                              // 'fallback': `@${tweet.user.screen_name}: ${tweet_text_parsed}`,
+                              callback_id: "sidekick_actions",
+                              color: "#e8e8e8",
+                              attachment_type: "default",
+                              actions: [
+                                {
+                                  name: "boost_toot",
+                                  text: "Boost",
+                                  type: "button",
+                                  value: status.uri,
+                                  confirm: {
+                                    title: "Please confirm",
+                                    text: `Are you sure you want to boost this toot from ${status.account.display_name}?`,
+                                    ok_text: "Yes",
+                                    dismiss_text: "No",
+                                  },
+                                },
+                                {
+                                  name: "boost_and_prompt",
+                                  text: "Boost+Prompt",
+                                  type: "button",
+                                  value: status.uri,
+                                  confirm: {
+                                    title: "Please confirm",
+                                    text: `Are you sure you want to boost this toot from ${status.account.display_name} and ask them to submit their bot to Botwiki?`,
+                                    ok_text: "Yes",
+                                    dismiss_text: "No",
+                                  },
+                                },
+                                {
+                                  "type": "button",
+                                  "text": "Submit",
+                                  "url": body.submit_url
+                                },
+                                // {
+                                //   name: "submit_to_botwiki",
+                                //   text: "Submit",
+                                //   type: "button",
+                                //   value: status.uri,
+                                //   confirm: {
+                                //     title: "Please confirm",
+                                //     text: `Are you sure you want submit this bot to Botwiki?`,
+                                //     ok_text: "Yes",
+                                //     dismiss_text: "No",
+                                //   },
+                                // },
+                              ],
+                            },
+                          ],
+                        },
+                        (err) => {
+                          if (err) {
+                            console.log({ err });
+                          }
+                        }
+                      );
+  
+                      fs.writeFileSync(
+                        __dirname + "/.data/botsinspace-bots.txt",
+                        JSON.stringify(botsinspaceBots)
+                      );                      
+                      
+
+                    });                    
+
+                    
                   }
                 });
                 // console.log(botsinspaceBots);
@@ -195,53 +214,53 @@ module.exports = (controller) => {
       description: "update profile picture on Twitter",
       interval: "*/30 * * * *",
       job: () => {
-        twitter.get_tweet_image((tweet_media) => {
-          let w = 500,
-            h = 500,
-            tweet_media_w = tweet_media.sizes.large.w,
-            tweet_media_h = tweet_media.sizes.large.h,
-            aspect_ratio = 1;
+//         twitter.get_tweet_image((tweet_media) => {
+//           let w = 500,
+//             h = 500,
+//             tweet_media_w = tweet_media.sizes.large.w,
+//             tweet_media_h = tweet_media.sizes.large.h,
+//             aspect_ratio = 1;
 
-          if (tweet_media_w < w) {
-            tweet_media_w = w;
-            aspect_ratio = w / tweet_media_w;
-            tweet_media_h = h * aspect_ratio;
-          }
+//           if (tweet_media_w < w) {
+//             tweet_media_w = w;
+//             aspect_ratio = w / tweet_media_w;
+//             tweet_media_h = h * aspect_ratio;
+//           }
 
-          if (tweet_media_h < h) {
-            tweet_media_h = h;
-            aspect_ratio = h / tweet_media_h;
-            tweet_media_w = w * aspect_ratio;
-          }
+//           if (tweet_media_h < h) {
+//             tweet_media_h = h;
+//             aspect_ratio = h / tweet_media_h;
+//             tweet_media_w = w * aspect_ratio;
+//           }
 
-          generators.overlay.overlay_images(
-            [
-              {
-                url: tweet_media.media_url_https,
-                x: 0,
-                y: 0,
-                width: tweet_media_w,
-                height: tweet_media_h,
-              },
-              {
-                url: "https://cdn.glitch.com/a8e332a3-3d82-4c9d-86c8-4209720f2ca9%2Fb-inverted.png",
-                x: 0,
-                y: 0,
-                width: w,
-                height: h,
-              },
-            ],
-            w,
-            h,
-            (err, img_data) => {
-              twitter.update_profile_image(img_data, (err) => {
-                if (!err) {
-                  console.log("updated!");
-                }
-              });
-            }
-          );
-        });
+//           generators.overlay.overlay_images(
+//             [
+//               {
+//                 url: tweet_media.media_url_https,
+//                 x: 0,
+//                 y: 0,
+//                 width: tweet_media_w,
+//                 height: tweet_media_h,
+//               },
+//               {
+//                 url: "https://cdn.glitch.com/a8e332a3-3d82-4c9d-86c8-4209720f2ca9%2Fb-inverted.png",
+//                 x: 0,
+//                 y: 0,
+//                 width: w,
+//                 height: h,
+//               },
+//             ],
+//             w,
+//             h,
+//             (err, img_data) => {
+//               twitter.update_profile_image(img_data, (err) => {
+//                 if (!err) {
+//                   console.log("updated!");
+//                 }
+//               });
+//             }
+//           );
+//         });
       },
     },
     {
