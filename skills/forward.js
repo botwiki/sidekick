@@ -22,7 +22,7 @@ module.exports = function(controller) {
         bot.api.chat.postMessage({
           // channel: 'C0AQZLT32',
           channel: channel_ids[submission.forward_channel_select],
-          text: `<@${event.user}> found this in <#${channel_ids.twitter_feed}>: ${submission.tweet_url}`,
+          text: `<@${event.user}> found this in <#${channel_ids.bot_feed}>: ${submission.tweet_url}`,
           unfurl_links: true,
           unfurl_links: true
         });        

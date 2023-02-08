@@ -516,13 +516,13 @@
 //         console.log("forward to #", originalMessage.actions[0].value);
 //         bot.api.chat.postMessage({
 //           channel: channel_ids.news,
-//           text: `<@${originalMessage.user}> found this in <#${channel_ids.twitter_feed}>: ${originalMessage.actions[0].value}`,
+//           text: `<@${originalMessage.user}> found this in <#${channel_ids.bot_feed}>: ${originalMessage.actions[0].value}`,
 //         });
 //       } else if (originalMessage.actions[0].name === "forward_projects") {
 //         console.log("forward to #", originalMessage.actions[0].value);
 //         bot.api.chat.postMessage({
 //           channel: channel_ids.projects,
-//           text: `<@${originalMessage.user}> found this in <#${channel_ids.twitter_feed}>: ${originalMessage.actions[0].value}`,
+//           text: `<@${originalMessage.user}> found this in <#${channel_ids.bot_feed}>: ${originalMessage.actions[0].value}`,
 //         });
 //       } else if (originalMessage.actions[0].name === "ignore") {
 //         helpers.is_admin(bot, message, (err) => {

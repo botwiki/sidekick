@@ -61,9 +61,9 @@ module.exports = (controller) => {
                     new_bots_maybe.push(status.account.url);
 
                     console.log("forwarding", {
-                      "channel_ids.twitter_feed": channel_ids.twitter_feed,
-                      "process.env.channel_twitter_feed":
-                        process.env.channel_twitter_feed,
+                      "channel_ids.bot_feed": channel_ids.bot_feed,
+                      "process.env.channel_bot_feed":
+                        process.env.channel_bot_feed,
                       // controller,
                       // bot
                     });
@@ -86,7 +86,7 @@ module.exports = (controller) => {
 
                       bot.api.chat.postMessage(
                         {
-                          channel: channel_ids.twitter_feed,
+                          channel: channel_ids.bot_feed,
                           // title: '',
                           // text: tweet_url,
                           attachments: [
@@ -104,49 +104,49 @@ module.exports = (controller) => {
                               callback_id: "sidekick_actions",
                               color: "#e8e8e8",
                               attachment_type: "default",
-                              actions: [
-                                {
-                                  name: "boost_toot",
-                                  text: "Boost",
-                                  type: "button",
-                                  value: status.uri,
-                                  confirm: {
-                                    title: "Please confirm",
-                                    text: `Are you sure you want to boost this toot from ${status.account.display_name}?`,
-                                    ok_text: "Yes",
-                                    dismiss_text: "No",
-                                  },
-                                },
-                                {
-                                  name: "boost_and_prompt",
-                                  text: "Boost+Prompt",
-                                  type: "button",
-                                  value: status.uri,
-                                  confirm: {
-                                    title: "Please confirm",
-                                    text: `Are you sure you want to boost this toot from ${status.account.display_name} and ask them to submit their bot to Botwiki?`,
-                                    ok_text: "Yes",
-                                    dismiss_text: "No",
-                                  },
-                                },
-                                // {
-                                //   "type": "button",
-                                //   "text": "Submit",
-                                //   "url": body.submit_url
-                                // },
-                                {
-                                  name: "submit_to_botwiki",
-                                  text: "Submit",
-                                  type: "button",
-                                  value: status.uri,
-                                  confirm: {
-                                    title: "Please confirm",
-                                    text: `Are you sure you want submit this bot to Botwiki?`,
-                                    ok_text: "Yes",
-                                    dismiss_text: "No",
-                                  },
-                                },
-                              ],
+                              // actions: [
+                              //   {
+                              //     name: "boost_toot",
+                              //     text: "Boost",
+                              //     type: "button",
+                              //     value: status.uri,
+                              //     confirm: {
+                              //       title: "Please confirm",
+                              //       text: `Are you sure you want to boost this toot from ${status.account.display_name}?`,
+                              //       ok_text: "Yes",
+                              //       dismiss_text: "No",
+                              //     },
+                              //   },
+                              //   {
+                              //     name: "boost_and_prompt",
+                              //     text: "Boost+Prompt",
+                              //     type: "button",
+                              //     value: status.uri,
+                              //     confirm: {
+                              //       title: "Please confirm",
+                              //       text: `Are you sure you want to boost this toot from ${status.account.display_name} and ask them to submit their bot to Botwiki?`,
+                              //       ok_text: "Yes",
+                              //       dismiss_text: "No",
+                              //     },
+                              //   },
+                              //   // {
+                              //   //   "type": "button",
+                              //   //   "text": "Submit",
+                              //   //   "url": body.submit_url
+                              //   // },
+                              //   {
+                              //     name: "submit_to_botwiki",
+                              //     text: "Submit",
+                              //     type: "button",
+                              //     value: status.uri,
+                              //     confirm: {
+                              //       title: "Please confirm",
+                              //       text: `Are you sure you want submit this bot to Botwiki?`,
+                              //       ok_text: "Yes",
+                              //       dismiss_text: "No",
+                              //     },
+                              //   },
+                              // ],
                             },
                           ],
                         },
