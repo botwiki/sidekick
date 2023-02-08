@@ -87,7 +87,6 @@ const helpers = {
     );
   },
   is_admin: (bot, message, cb) => {
-    let helpers = this;
     bot.api.users.info({ user: message.user }, (err, res) => {
       if (err) {
         console.log({ err });
@@ -193,7 +192,6 @@ const helpers = {
     );
   },
   get_group_info: (bot, message, cb) => {
-    let helpers = this;
 
     /* Get basic info about the group. */
     let original_message = message;
@@ -332,7 +330,6 @@ const helpers = {
     );
   },
   get_bot_info: (bot, message, cb) => {
-    let helpers = this;
     /* Get basic info about the group. */
     let original_message = message;
     bot.api.users.list(
@@ -499,7 +496,6 @@ const helpers = {
     return url.substring(url.lastIndexOf("/") + 1);
   },
   deactivate: (bot, message, user_id, cb) => {
-    let helpers = this;
     console.log(`Deleting user <@${user_id}>...`);
     // return false;
     let options = {

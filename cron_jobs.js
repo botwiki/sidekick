@@ -48,6 +48,8 @@ module.exports = (controller) => {
                 limit: 40,
               }).then((res) => {
                 let statuses = res.data;
+                console.log(`found ${statuses.length} status(es)...`);
+                
                 statuses.forEach((status) => {
                   // console.log(status);
 
