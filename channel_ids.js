@@ -12,5 +12,5 @@ module.exports = {
   testing: process.env.channel_testing,
   testing_private: process.env.channel_testing_private,
   tools_resources: process.env.channel_tools_resources,
-  twitter_feed: process.env.channel_twitter_feed,
+  bot_feed: process.env.channel_bot_feed,
 };

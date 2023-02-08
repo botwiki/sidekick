@@ -89,7 +89,7 @@
 
 //   slackbot.api.chat.postMessage(
 //     {
-//       channel: process.env.channel_twitter_feed,
+//       channel: process.env.channel_bot_feed,
 //       // title: '',
 //       // text: tweet_url,
 //       attachments: [
