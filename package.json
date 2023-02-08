@@ -23,7 +23,8 @@
     "querystring": "^0.2.0",
     "request": "2.88.0",
     "twit": "^2.2.11",
-    "wordfilter": "^0.2.6"
+    "wordfilter": "^0.2.6",
+    "jsdom": "^15.2.1"
   },
   "engines": {
     "node": "8.17.0"
