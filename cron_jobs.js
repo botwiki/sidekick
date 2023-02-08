@@ -1,3 +1,5 @@
+//TODO: This should be broken up into individual modules.
+
 const fs = require("fs"),
   fsPath = require("fs-path"),
   util = require("util"),
@@ -45,7 +47,7 @@ module.exports = (controller) => {
 
               mastodon.M.get("timelines/public", {
                 local: true,
-                limit: 40,
+                limit: 80,
               }).then((res) => {
                 let statuses = res.data;
                 console.log(`found ${statuses.length} status(es)...`);
@@ -89,7 +91,7 @@ module.exports = (controller) => {
                           // text: tweet_url,
                           attachments: [
                             {
-                              text: `<@stefan> New bot?\n>${content}\n\n<${submitURL}|Submit to Botwiki>`,
+                              text: `${content}\n\n<${submitURL}|Submit to Botwiki>`,
                               author_name: `@${
                                 status.account.display_name ||
                                 status.account.username
