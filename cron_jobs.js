@@ -2,6 +2,7 @@ const fs = require("fs"),
   fsPath = require("fs-path"),
   util = require("util"),
   request = require("request"),
+  jsdom = require("jsdom"),
   generators = {
     overlay: require(__dirname + "/generators/overlay.js"),
   },
@@ -66,10 +67,18 @@ module.exports = (controller) => {
                     const botURL = `https://botsin.space/@${status.account.username}`;
                     const botwikiSubmitURL = `https://metascraper.stefanbohacek.dev/?url=${ botURL }&mode=botwiki`
                     let r = request.get(botwikiSubmitURL, (err, res, body) => {
+                      let submitURL = '';
 
-                      body = JSON.parse(body);
-                      console.log(body.submit_url);
-
+                      try{
+                        // console.log(body);
+                        body = JSON.parse(body);
+                        submitURL = body.submit_url;
+                      } catch(err){
+                        /* noop */  
+                      }
+                      
+                      const { JSDOM } = jsdom;
+                      const content = JSDOM.fragment(status.content).textContent;
 
                       bot.api.chat.postMessage(
                         {
@@ -78,7 +87,7 @@ module.exports = (controller) => {
                           // text: tweet_url,
                           attachments: [
                             {
-                              text: `<@stefan> New bot?\n>${status.content}`,
+                              text: `<@stefan> New bot?\n>${content}\n\n<${submitURL}|Submit to Botwiki>`,
                               author_name: `@${
                                 status.account.display_name ||
                                 status.account.username
@@ -116,23 +125,23 @@ module.exports = (controller) => {
                                     dismiss_text: "No",
                                   },
                                 },
-                                {
-                                  "type": "button",
-                                  "text": "Submit",
-                                  "url": body.submit_url
-                                },
                                 // {
-                                //   name: "submit_to_botwiki",
-                                //   text: "Submit",
-                                //   type: "button",
-                                //   value: status.uri,
-                                //   confirm: {
-                                //     title: "Please confirm",
-                                //     text: `Are you sure you want submit this bot to Botwiki?`,
-                                //     ok_text: "Yes",
-                                //     dismiss_text: "No",
-                                //   },
+                                //   "type": "button",
+                                //   "text": "Submit",
+                                //   "url": body.submit_url
                                 // },
+                                {
+                                  name: "submit_to_botwiki",
+                                  text: "Submit",
+                                  type: "button",
+                                  value: status.uri,
+                                  confirm: {
+                                    title: "Please confirm",
+                                    text: `Are you sure you want submit this bot to Botwiki?`,
+                                    ok_text: "Yes",
+                                    dismiss_text: "No",
+                                  },
+                                },
                               ],
                             },
                           ],
