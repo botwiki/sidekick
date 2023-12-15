@@ -29,8 +29,8 @@ module.exports = (controller) => {
       interval: "* * * * *",
       job: () => {
         console.log("checking for new bots on botsin.space...");
-        controller.storage.teams.all((err, all_team_data) => {
-          let bot = controller.spawn({ token: all_team_data[0].token });
+        controller.storage.teams.all((err, allTeamData) => {
+          let bot = controller.spawn({ token: allTeamData[0].token });
           let botsinspaceBots = [];
 
           fs.readFile(
@@ -42,8 +42,9 @@ module.exports = (controller) => {
               }
 
               console.log(`debug: ${botsinspaceBots.length}`)
+              
 
-              let new_bots_maybe = [];
+              let newBotsMaybe = [];
 
               mastodon.M.get("timelines/public", {
                 local: true,
@@ -58,7 +59,7 @@ module.exports = (controller) => {
                   if (botsinspaceBots.indexOf(status.account.url) === -1) {
                     // console.log('new bot?', status.account.url);
                     botsinspaceBots.push(status.account.url);
-                    new_bots_maybe.push(status.account.url);
+                    newBotsMaybe.push(status.account.url);
 
                     console.log("forwarding", {
                       "channel_ids.bot_feed": channel_ids.bot_feed,
@@ -169,9 +170,9 @@ module.exports = (controller) => {
                   }
                 });
                 // console.log(botsinspaceBots);
-                console.log({ new_bots_maybe });
+                console.log({ newBotsMaybe });
 
-                if (new_bots_maybe.length > 0) {
+                if (newBotsMaybe.length > 0) {
                   fs.writeFileSync(
                     __dirname + "/.data/botsinspace-bots.txt",
                     JSON.stringify(botsinspaceBots)
@@ -187,8 +188,8 @@ module.exports = (controller) => {
       description: "update last active statuses based on login information",
       interval: "*/10 * * * *",
       job: () => {
-        controller.storage.teams.all((err, all_team_data) => {
-          let bot = controller.spawn({ token: all_team_data[0].token });
+        controller.storage.teams.all((err, allTeamData) => {
+          let bot = controller.spawn({ token: allTeamData[0].token });
           bot.api.team.accessLogs(
             { token: process.env.superToken },
             (err, data) => {
@@ -215,8 +216,8 @@ module.exports = (controller) => {
       // interval: '*/1 * * * *',
       interval: "*/30 * * * *",
       job: () => {
-        controller.storage.teams.all((err, all_team_data) => {
-          let bot = controller.spawn({ token: all_team_data[0].token });
+        controller.storage.teams.all((err, allTeamData) => {
+          let bot = controller.spawn({ token: allTeamData[0].token });
           helpers.get_group_info(bot, null, (err, data) => {
             helpers.log_event(bot, "", data);
           });
@@ -288,10 +289,10 @@ module.exports = (controller) => {
             `${helpers.padNumber(d.getHours(), 2)}-` +
             `${helpers.padNumber(d.getMinutes(), 2)}.db`;
 
-        controller.storage.teams.all((err, all_team_data) => {
+        controller.storage.teams.all((err, allTeamData) => {
           fsPath.writeFile(
             `.data/db_dump/${db_dump_filename}`,
-            JSON.stringify(all_team_data),
+            JSON.stringify(allTeamData),
             (err) => {
               console.log(`dumping DB...`);
               if (err) {

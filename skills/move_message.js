@@ -135,7 +135,11 @@ module.exports = (controller) => {
                                   // content: data,
                                   file: fs.createReadStream(filepath),
                                   filename: match.name ? match.name : "",
-                                  initial_comment: `Originally posted in <#${channel_id_original}> by <@${user_original}>. ${original_comment}`,
+                                  initial_comment:
+                                    `Originally posted in <#${channel_id_original}>` +
+                                    (user_original
+                                      ? `by <@${user_original}>. ${original_comment}`
+                                      : ``),
                                 },
                                 (err, message) => {
                                   if (err) {
@@ -278,7 +282,12 @@ module.exports = (controller) => {
           channel: submission.forward_channel_select,
           parse: "link_names ",
           mrkdwn: true,
-          text: `Originally posted in <#${messageData.original_channel}> by <@${messageData.user_id}>:\n>>> ${messageData.message_text}`,
+          text:
+            `Originally posted in <#${messageData.original_channel}>` +
+            (messageData && messageData.user_id
+              ? `by <@${messageData.user_id}>`
+              : ``) +
+            `:\n>>> ${messageData.message_text}`,
           // files: messageData.files,
           unfurl_links: true,
         },
