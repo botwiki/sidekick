@@ -70,7 +70,7 @@ module.exports = (controller) => {
                     });
 
                     const botURL = `https://botsin.space/@${status.account.username}`;
-                    const botwikiSubmitURL = `https://metascraper.stefanbohacek.dev/?url=${ botURL }&mode=botwiki`
+                    const botwikiSubmitURL = `https://tools.stefanbohacek.dev/metascraper/?url=${ botURL }&mode=botwiki`
                     let r = request.get(botwikiSubmitURL, (err, res, body) => {
                       let submitURL = '';
 
