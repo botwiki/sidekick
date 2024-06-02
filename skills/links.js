@@ -46,7 +46,7 @@ module.exports = (controller) => {
       bot.api.chat.postEphemeral({
         channel: message.channel,
         user: message.user,
-        text: "Posting a new bot? Remember to add it to Botwiki! botwiki.org/submit-your-bot",
+        text: "Posting a new bot? Remember to add it to Botwiki! botwiki.org/submit-your-bot\n\nPromoting a new product or service? Try the <#C06A6JV0DE1> channel instead.",
       });
     } else {
       // console.log(message.channel, messageText.indexOf('http://'));
