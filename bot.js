@@ -20,9 +20,9 @@ const fs = require("fs"),
 
 const mastodon = require("./networks/mastodon.js");
 
-const generators = {
-  overlay: require(__dirname + "/generators/overlay.js"),
-};
+// const generators = {
+//   overlay: require(__dirname + "/generators/overlay.js"),
+// };
 
 if (!process.env.clientId || !process.env.clientSecret || !process.env.PORT) {
   console.log("Error: Specify clientId clientSecret and PORT in environment");
