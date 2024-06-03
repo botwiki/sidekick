@@ -5,9 +5,6 @@ const fs = require("fs"),
   util = require("util"),
   request = require("request"),
   jsdom = require("jsdom"),
-  generators = {
-    overlay: require(__dirname + "/generators/overlay.js"),
-  },
   // twitter = require(__dirname + "/twitter.js"),
   helpers = require(__dirname + "/helpers.js"),
   moment = require("moment"),
@@ -222,59 +219,6 @@ module.exports = (controller) => {
             helpers.log_event(bot, "", data);
           });
         });
-      },
-    },
-    {
-      description: "update profile picture on Twitter",
-      interval: "*/30 * * * *",
-      job: () => {
-//         twitter.get_tweet_image((tweet_media) => {
-//           let w = 500,
-//             h = 500,
-//             tweet_media_w = tweet_media.sizes.large.w,
-//             tweet_media_h = tweet_media.sizes.large.h,
-//             aspect_ratio = 1;
-
-//           if (tweet_media_w < w) {
-//             tweet_media_w = w;
-//             aspect_ratio = w / tweet_media_w;
-//             tweet_media_h = h * aspect_ratio;
-//           }
-
-//           if (tweet_media_h < h) {
-//             tweet_media_h = h;
-//             aspect_ratio = h / tweet_media_h;
-//             tweet_media_w = w * aspect_ratio;
-//           }
-
-//           generators.overlay.overlay_images(
-//             [
-//               {
-//                 url: tweet_media.media_url_https,
-//                 x: 0,
-//                 y: 0,
-//                 width: tweet_media_w,
-//                 height: tweet_media_h,
-//               },
-//               {
-//                 url: "https://cdn.glitch.com/a8e332a3-3d82-4c9d-86c8-4209720f2ca9%2Fb-inverted.png",
-//                 x: 0,
-//                 y: 0,
-//                 width: w,
-//                 height: h,
-//               },
-//             ],
-//             w,
-//             h,
-//             (err, img_data) => {
-//               twitter.update_profile_image(img_data, (err) => {
-//                 if (!err) {
-//                   console.log("updated!");
-//                 }
-//               });
-//             }
-//           );
-//         });
       },
     },
     {
